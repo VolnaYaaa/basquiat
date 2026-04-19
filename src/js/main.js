@@ -16,7 +16,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-// Освещение
+// éclairage
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
@@ -24,18 +24,18 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 2);
 dirLight.position.set(5, 10, 5);
 scene.add(dirLight);
 
-// Управление мышью
+// le contrôle de la souris
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Загрузка GLB модели
+// Chargement du modèle GLB
 const loader = new GLTFLoader();
 loader.load(
-  '/models/test.glb', // 👈 замени на имя своего файла
+  '/models/test.glb', // 👈 Remplacer par le nom de votre fichier
   (gltf) => {
     scene.add(gltf.scene);
 
-    // Авто-центрирование и масштаб
+    // Centrage automatique et mise à l'échelle
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
@@ -48,14 +48,14 @@ loader.load(
   (error) => console.error('Ошибка загрузки:', error)
 );
 
-// Адаптация под размер окна
+// Adaptation à la taille de la fenêtre
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Анимация
+// Animation
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
