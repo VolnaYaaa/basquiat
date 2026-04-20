@@ -7,7 +7,9 @@ console.log("✅  et also", OrbitControls, GLTFLoader);
 
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x202020);
+const texture = await new THREE.TextureLoader().loadAsync('/src/img/bg_placeholder.jpg');
+texture.colorSpace = THREE.SRGBColorSpace;
+scene.background = texture;
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 3);
@@ -17,11 +19,11 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // éclairage
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 scene.add(ambientLight);
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-dirLight.position.set(5, 10, 5);
+dirLight.position.set(0, 5, 5);
 scene.add(dirLight);
 
 // le contrôle de la souris
@@ -41,7 +43,7 @@ loader.load(
     const size = box.getSize(new THREE.Vector3());
     gltf.scene.position.sub(center);
     const maxDim = Math.max(size.x, size.y, size.z);
-    camera.position.set(0, maxDim * 0.5, maxDim * 2);
+    camera.position.set(0, maxDim * 0.2, maxDim * 1);
     controls.update();
   },
   (xhr) => console.log(`Загрузка: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`),
