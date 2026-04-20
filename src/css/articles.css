@@ -26,3 +26,11 @@
   cursor: pointer;
   pointer-events: all; 
 }
+
+@font-face {
+  font-family: 'GroteskRemix';
+  src: url('/public/models/fonts/Basquiat-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
