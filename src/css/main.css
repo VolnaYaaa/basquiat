@@ -3,6 +3,16 @@
   margin: 0;
   padding: 0;
 }
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: none;
+
+}
 
 a {
   color: inherit;
@@ -11,4 +21,40 @@ a {
 img,
 video {
   display: block;
+}
+
+@font-face {
+  font-family: 'GroteskRemix';
+  src: url('public/fonts/GroteskRemix/Gr.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+h1,p {
+  font-family: 'GroteskRemix', sans-serif;
+}
+main{
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+/* __________________________________canvas______________________________________ */
+#canvas-layout {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;left: 0; /* stretched to full screen */
+  contain: strict;
+  overflow: hidden;
+  pointer-events: none; /* Canvas doesn't respond to the mouse at all */
+  z-index: 1;
+}
+#bg-smoke {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* _______________________________________________________________________________*/
+
+.article {
+  position: relative;
+  z-index: 9;
 }

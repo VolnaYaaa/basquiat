@@ -11,10 +11,9 @@ scene.background = new THREE.Color(0x202020);
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 3);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const canvas = document.getElementById('bg-smoke'); // ← берём твой canvas из HTML
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
 
 // éclairage
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
