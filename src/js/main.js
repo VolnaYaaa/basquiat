@@ -30,7 +30,7 @@ controls.enableDamping = true;
 // Chargement du modèle GLB
 const loader = new GLTFLoader();
 loader.load(
-  '/models/test.glb', // 👈 Remplacer par le nom de votre fichier
+  '/models/model.glb', // 👈 Remplacer par le nom de votre fichier
   (gltf) => {
     scene.add(gltf.scene);
 
