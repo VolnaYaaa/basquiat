@@ -4,7 +4,6 @@
   top: 0; right: 0; bottom: 0;left: 0; /* stretched to full screen */
   contain: strict;
   overflow: hidden;
-  pointer-events: none; /* Canvas doesn't respond to the mouse at all */
   z-index: 1;
 }
 #bg-smoke {
@@ -17,4 +16,13 @@
 .article {
   position: relative;
   z-index: 9;
+  height: 100%;
+ 
+}
+.article p {
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  pointer-events: all; 
 }
