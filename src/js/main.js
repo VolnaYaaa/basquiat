@@ -7,7 +7,9 @@ console.log("✅  et also", OrbitControls, GLTFLoader);
 
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x202020);
+const texture = await new THREE.TextureLoader().loadAsync('/src/img/bg_placeholder.jpg');
+texture.colorSpace = THREE.SRGBColorSpace;
+scene.background = texture;
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 3);
