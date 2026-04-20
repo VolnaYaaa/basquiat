@@ -5,6 +5,7 @@
   contain: strict;
   overflow: hidden;
   z-index: 1;
+  pointer-events: all;
 }
 #bg-smoke {
   width: 100%;
@@ -17,7 +18,7 @@
   position: relative;
   z-index: 9;
   height: 100%;
- 
+ pointer-events: none;
 }
 .article p {
   position: absolute;

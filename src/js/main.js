@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+
 console.log("✅  et also", OrbitControls, GLTFLoader);
 
 
@@ -30,7 +31,7 @@ controls.enableDamping = true;
 // Chargement du modèle GLB
 const loader = new GLTFLoader();
 loader.load(
-  '/models/model.glb', // 👈 Remplacer par le nom de votre fichier
+  'public/models/model.glb', // 👈 Remplacer par le nom de votre fichier
   (gltf) => {
     scene.add(gltf.scene);
 
@@ -52,8 +53,8 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  placeElements(); 
 });
-
 // Animation
 function animate() {
   requestAnimationFrame(animate);
@@ -61,3 +62,16 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+
+
+
+
+
+
+
+
+
+
+
+
+
