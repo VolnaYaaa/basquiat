@@ -23,7 +23,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 scene.add(ambientLight);
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-dirLight.position.set(0, 10, 5);
+dirLight.position.set(0, 5, 5);
 scene.add(dirLight);
 
 // le contrôle de la souris
