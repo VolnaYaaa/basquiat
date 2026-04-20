@@ -15,6 +15,7 @@
 /* _______________________________________________________________________________*/
 
 .article {
+  margin: 70px;
   position: relative;
   z-index: 9;
   height: 100%;
@@ -23,10 +24,11 @@
 }
 .article .node {
   position: absolute;
-  color: white;
-  font-size: 14px;
+  color: rgb(0, 0, 0);
+  font-size: 26px;
   cursor: pointer;
-  pointer-events: all; 
+  pointer-events: all;
+  -webkit-text-stroke: 1px rgb(170, 0, 0); 
 }
 
 @font-face {
