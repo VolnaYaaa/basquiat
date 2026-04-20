@@ -19,8 +19,9 @@
   z-index: 9;
   height: 100%;
  pointer-events: none;
+ font-family: 'GroteskRemix', sans-serif;
 }
-.article p {
+.article .node {
   position: absolute;
   color: white;
   font-size: 14px;
