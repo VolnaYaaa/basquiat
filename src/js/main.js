@@ -43,7 +43,7 @@ loader.load(
     const size = box.getSize(new THREE.Vector3());
     gltf.scene.position.sub(center);
     const maxDim = Math.max(size.x, size.y, size.z);
-    camera.position.set(0, maxDim * 0.5, maxDim * 2);
+    camera.position.set(0, maxDim * 0.2, maxDim * 1);
     controls.update();
   },
   (xhr) => console.log(`Загрузка: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`),
