@@ -235,6 +235,50 @@ window.addEventListener('resize', () => {
   maskPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
 });
 
+// ŒUVRES SUR CYLINDRE
+const sceneUI = new THREE.Scene();
+const works = [
+  { src: '/src/img/oeuvre1.png', angle:  Math.PI * 1.5 },  // gauche
+  { src: '/src/img/oeuvre2.png', angle:  Math.PI * 11/6 },  // centre-gauche
+  { src: '/src/img/oeuvre3.png', angle:  Math.PI / 6 },  // centre-droit
+  { src: '/src/img/oeuvre4.png', angle:  Math.PI / 2 },  // droite
+];
+
+const cylinderRadius = 5;  // distance au centre / ajuste selon ton buste
+const cylinderHeight = 4;    // hauteur des panneaux
+const arcAngle = Math.PI / 4; // courbure de chaque panneau (45°)
+const segments = 20;          // finesse de la courbure
+
+works.forEach(({ src, angle }) => {
+  const texture = textureLoader.load(src);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  // Géométrie : portion de cylindre
+  const geo = new THREE.CylinderGeometry(
+    cylinderRadius,   // rayon haut
+    cylinderRadius,   // rayon bas
+    cylinderHeight,   // hauteur
+    segments,         // segments horizontaux
+    1,                // segments verticaux
+    true,             // open-ended (pas de caps)
+    angle - arcAngle / 2,  // début de l'arc
+    arcAngle               // amplitude de l'arc
+  );
+
+  const mat = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.FrontSide, // texture visible de l'intérieur du cylindre
+    transparent: true,
+    alphaTest: 0.2,
+    depthTest: true,
+    depthWrite: true,
+  });
+
+  const panel = new THREE.Mesh(geo, mat);
+  panel.position.set(0, 0, 0); // centré sur le buste
+  sceneUI.add(panel);
+});
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
@@ -247,8 +291,11 @@ function animate() {
 
   // 2. Réassignation explicite à chaque frame
   maskPass.uniforms['tOriginal'].value = originalTarget.texture;
-
-  // 3. Rendu avec effets
   composer.render();
+
+  renderer.autoClear = false; // ne pas effacer ce que le composer a rendu
+  renderer.clearDepth();
+  renderer.render(sceneUI, camera);
+  renderer.autoClear = true;
 }
 animate();
