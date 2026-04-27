@@ -1,4 +1,4 @@
-const nodes = document.querySelectorAll('.article .node');
+const nodes = document.querySelectorAll('.article');
 const paddingPercent = 5;
 const placed = [];
 
