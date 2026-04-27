@@ -85,11 +85,10 @@ const MaskShader = {
 
     void main() {
       vec2 fragCoord = vUv * uResolution;
-      vec2 d = abs(fragCoord - uMouse);
-      float dist = max(d.x, d.y);
+      float dist = distance(fragCoord, uMouse);
       vec4 processed = texture2D(tDiffuse, vUv);
       vec4 original  = texture2D(tOriginal, vUv);
-      float mask = smoothstep(uRadius - 20.0, uRadius + 20.0, dist);
+      float mask = smoothstep(uRadius - 40.0, uRadius + 40.0, dist);
       gl_FragColor = mix(original, processed, mask);
     }
   `
@@ -163,7 +162,7 @@ loader.load(
     gltf.scene.position.sub(center);
     const size = box.getSize(new THREE.Vector3()); // ✅ corrigé
     const maxDim = Math.max(size.x, size.y, size.z);
-    camera.position.set(0, maxDim * 0.2, maxDim * 2);
+    camera.position.set(0, maxDim * 0.2, maxDim * 1.4);
     controls.update();
   },
   (xhr) => console.log(`Загрузка: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`),
