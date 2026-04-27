@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
 
 
 console.log("✅  et also", OrbitControls, GLTFLoader);
@@ -98,7 +102,7 @@ const ceil = new THREE.Mesh(
 );
 ceil.rotation.x = Math.PI / 2;  // 👈 retourné vers le bas (opposé au sol)
 ceil.rotation.z = Math.PI / 4;
-ceil.position.set(-6, H / 2, 0); // 👈 symétrique du sol en Y
+ceil.position.set(-36, H / 2, -30); // 👈 symétrique du sol en Y
 room.add(ceil);
 
 // Mur gauche
@@ -133,13 +137,21 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   placeElements();
 });
-// Animation
+// À initialiser UNE SEULE FOIS, en dehors de animate()
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const sobelPass = new ShaderPass(SobelOperatorShader);
+sobelPass.uniforms['resolution'].value.set(window.innerWidth * 4, window.innerHeight);
+composer.addPass(sobelPass);
+
+// Ces propriétés s'appliquent sur le renderer, pas le composer
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-  renderer.render(scene, camera);
+  composer.render(); // 👈 remplace renderer.render(scene, camera)
 }
 animate();
-
-renderer.toneMapping = THREE.NoToneMapping;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
