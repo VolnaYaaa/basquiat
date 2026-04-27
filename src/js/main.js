@@ -18,7 +18,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // éclairage
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 0);
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 1);
 scene.add(hemiLight);
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 3);
@@ -54,7 +54,7 @@ loader.load(
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     gltf.scene.position.sub(center);
-    const maxDim = Math.max(size.x, size.y, size.z);
+    const maxDim = Math.max(6, 2, 2);
     camera.position.set(0, maxDim * 0.2, maxDim * 1);
     controls.update();
     loader.colorSpace = THREE.SRGBColorSpace;
@@ -69,10 +69,12 @@ const textureLoader = new THREE.TextureLoader();
 const floorTex    = textureLoader.load('/src/img/wall_b.png');
 const wallLeftTex = textureLoader.load('/src/img/wall_l.png');
 const wallBackTex = textureLoader.load('/src/img/wall_r.png');
+const ceilTex     = textureLoader.load('/src/img/wall_top.png');
 
 floorTex.colorSpace    = THREE.SRGBColorSpace;
 wallLeftTex.colorSpace = THREE.SRGBColorSpace;
 wallBackTex.colorSpace = THREE.SRGBColorSpace;
+ceilTex.colorSpace     = THREE.SRGBColorSpace;
 
 const W = 160; // largeur
 const H = 60; // hauteur des murs
@@ -88,6 +90,16 @@ const floor = new THREE.Mesh(
 floor.rotation.x = -Math.PI / 2;
 floor.position.set(0, -H / 2, 0);
 room.add(floor);
+
+// Plafond
+const ceil = new THREE.Mesh(
+  new THREE.PlaneGeometry(W, D),
+  new THREE.MeshBasicMaterial({ map: ceilTex })
+);
+ceil.rotation.x = Math.PI / 2;  // 👈 retourné vers le bas (opposé au sol)
+ceil.rotation.z = Math.PI / 4;
+ceil.position.set(-6, H / 2, 0); // 👈 symétrique du sol en Y
+room.add(ceil);
 
 // Mur gauche
 const wallLeft = new THREE.Mesh(
@@ -131,16 +143,3 @@ animate();
 
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-
-
-
-
-
-
-
-
-
-
-
-
