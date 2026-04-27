@@ -5,12 +5,12 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
-import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js'; // 👈 déplacé ici
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1, 3);
+camera.position.set(0, 1, 6);
 
 const canvas = document.getElementById('bg-smoke');
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
@@ -33,7 +33,14 @@ scene.add(backLight);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// POSTPROCESSING — initialisé avant le loader
+// POSTPROCESSING
+const originalTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+  minFilter: THREE.LinearFilter,  // 👈
+  magFilter: THREE.LinearFilter,  // 👈
+  format: THREE.RGBAFormat,       // 👈
+  type: THREE.UnsignedByteType    // 👈
+});
+
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
@@ -52,6 +59,52 @@ outlinePass.edgeThickness = 1;
 outlinePass.visibleEdgeColor.set(0xffffff);
 composer.addPass(outlinePass);
 
+// SHADER DE MASQUE CIRCULAIRE
+const MaskShader = {
+  uniforms: {
+    tDiffuse:    { value: null },
+    tOriginal:   { value: originalTarget.texture },
+    uMouse:      { value: new THREE.Vector2(-999, -999) },
+    uRadius:     { value: 40.0 },
+    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tOriginal;
+    uniform vec2 uMouse;
+    uniform float uRadius;
+    uniform vec2 uResolution;
+    varying vec2 vUv;
+
+    void main() {
+      vec2 fragCoord = vUv * uResolution;
+      float dist = distance(fragCoord, uMouse);
+      vec4 processed = texture2D(tDiffuse, vUv);
+      vec4 original  = texture2D(tOriginal, vUv);
+      float mask = smoothstep(uRadius - 1.0, uRadius + 1.0, dist);
+      gl_FragColor = mix(original, processed, mask);
+    }
+  `
+};
+
+const maskPass = new ShaderPass(MaskShader);
+composer.addPass(maskPass);
+
+// Suivi de la souris
+window.addEventListener('mousemove', (e) => {
+  maskPass.uniforms['uMouse'].value.set(
+    e.clientX,
+    window.innerHeight - e.clientY
+  );
+});
+
 // Chargement du modèle GLB
 const loader = new GLTFLoader();
 loader.load(
@@ -69,14 +122,13 @@ loader.load(
       }
     });
 
-    // 👇 Assignation ici, où gltf.scene est accessible
     outlinePass.selectedObjects = [gltf.scene];
 
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     gltf.scene.position.sub(center);
-    const maxDim = Math.max(6, 2, 2);
-    camera.position.set(0, maxDim * 0.2, maxDim * 1);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    camera.position.set(0, maxDim * 0.2, maxDim * 2);
     controls.update();
   },
   (xhr) => console.log(`Загрузка: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`),
@@ -144,12 +196,25 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight); // 👈 ne pas oublier
+  composer.setSize(window.innerWidth, window.innerHeight);
+  originalTarget.setSize(window.innerWidth, window.innerHeight);
+  maskPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
 });
 
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+
+  // 1. Capture de la scène brute AVANT tout effet 👈
+  renderer.setRenderTarget(originalTarget);
+  renderer.clear();
+  renderer.render(scene, camera);
+  renderer.setRenderTarget(null);
+
+  // 2. Réassignation explicite à chaque frame 👈
+  maskPass.uniforms['tOriginal'].value = originalTarget.texture;
+
+  // 3. Rendu avec effets
   composer.render();
 }
 animate();
