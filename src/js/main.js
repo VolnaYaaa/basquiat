@@ -35,10 +35,10 @@ controls.enableDamping = true;
 
 // POSTPROCESSING
 const originalTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  minFilter: THREE.LinearFilter,  // 👈
-  magFilter: THREE.LinearFilter,  // 👈
-  format: THREE.RGBAFormat,       // 👈
-  type: THREE.UnsignedByteType    // 👈
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  format: THREE.RGBAFormat,
+  type: THREE.UnsignedByteType
 });
 
 const composer = new EffectComposer(renderer);
@@ -59,13 +59,13 @@ outlinePass.edgeThickness = 1;
 outlinePass.visibleEdgeColor.set(0xffffff);
 composer.addPass(outlinePass);
 
-// SHADER DE MASQUE CIRCULAIRE
+// SHADER DE MASQUE CARRÉ
 const MaskShader = {
   uniforms: {
     tDiffuse:    { value: null },
     tOriginal:   { value: originalTarget.texture },
     uMouse:      { value: new THREE.Vector2(-999, -999) },
-    uRadius:     { value: 40.0 },
+    uRadius:     { value: 80.0 },
     uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
   },
   vertexShader: `
@@ -85,10 +85,11 @@ const MaskShader = {
 
     void main() {
       vec2 fragCoord = vUv * uResolution;
-      float dist = distance(fragCoord, uMouse);
+      vec2 d = abs(fragCoord - uMouse);
+      float dist = max(d.x, d.y);
       vec4 processed = texture2D(tDiffuse, vUv);
       vec4 original  = texture2D(tOriginal, vUv);
-      float mask = smoothstep(uRadius - 1.0, uRadius + 1.0, dist);
+      float mask = smoothstep(uRadius - 20.0, uRadius + 20.0, dist);
       gl_FragColor = mix(original, processed, mask);
     }
   `
@@ -97,8 +98,41 @@ const MaskShader = {
 const maskPass = new ShaderPass(MaskShader);
 composer.addPass(maskPass);
 
+// BOUTON FILTRE
+const btn = document.createElement('button');
+btn.textContent = 'Désactiver le filtre';
+btn.style.cssText = `
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  padding: 10px 18px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #fff;
+  font-family: monospace;
+  font-size: 13px;
+  cursor: pointer;
+`;
+document.body.appendChild(btn);
+
+let filterActive = true;
+
+btn.addEventListener('click', () => {
+  filterActive = !filterActive;
+  btn.textContent = filterActive ? 'Désactiver le filtre' : 'Activer le filtre';
+
+  if (!filterActive) {
+    maskPass.uniforms['uMouse'].value.set(-9999, -9999);
+    maskPass.uniforms['uRadius'].value = 99999;
+  } else {
+    maskPass.uniforms['uRadius'].value = 80.0;
+  }
+});
+
 // Suivi de la souris
 window.addEventListener('mousemove', (e) => {
+  if (!filterActive) return;
   maskPass.uniforms['uMouse'].value.set(
     e.clientX,
     window.innerHeight - e.clientY
@@ -127,6 +161,7 @@ loader.load(
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     gltf.scene.position.sub(center);
+    const size = box.getSize(new THREE.Vector3()); // ✅ corrigé
     const maxDim = Math.max(size.x, size.y, size.z);
     camera.position.set(0, maxDim * 0.2, maxDim * 2);
     controls.update();
@@ -205,13 +240,13 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
-  // 1. Capture de la scène brute AVANT tout effet 👈
+  // 1. Capture de la scène brute AVANT tout effet
   renderer.setRenderTarget(originalTarget);
   renderer.clear();
   renderer.render(scene, camera);
   renderer.setRenderTarget(null);
 
-  // 2. Réassignation explicite à chaque frame 👈
+  // 2. Réassignation explicite à chaque frame
   maskPass.uniforms['tOriginal'].value = originalTarget.texture;
 
   // 3. Rendu avec effets
