@@ -7,9 +7,7 @@ console.log("✅  et also", OrbitControls, GLTFLoader);
 
 
 const scene = new THREE.Scene();
-const texture = await new THREE.TextureLoader().loadAsync('/src/img/bg_placeholder.jpg');
-texture.colorSpace = THREE.SRGBColorSpace;
-scene.background = texture;
+
 
 // CAMERA
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -45,8 +43,8 @@ loader.load(
       if (child.isMesh) {
         child.material = new THREE.MeshStandardMaterial({
           color: child.material.color ?? 0xcccccc, // conserve la couleur d'origine si elle existe
-          roughness: 0.6,  // 0 = miroir, 1 = mat
-          metalness: 0.2,  // 0 = non-métallique, 1 = métal pur
+          roughness: 0,  // 0 = miroir, 1 = mat
+          metalness: 0.1,  // 0 = non-métallique, 1 = métal pur
         });
       }
     });
@@ -110,8 +108,9 @@ room.add(wallBack);
 
 // Rotation du coin à 45° / positionnement de la pièce
 room.rotation.y = Math.PI / -4;
-room.position.x = 7;
-room.position.z = -10;
+room.position.z = 20;
+room.position.x = 0;
+room.position.y = 10;
 
 scene.add(room);
 
