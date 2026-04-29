@@ -7,6 +7,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -117,6 +118,70 @@ const MaskShader = {
 };
 const maskPass = new ShaderPass(MaskShader);
 composer.addPass(maskPass);
+
+// Depth of Field custom : floute tout sauf le buste
+const DofShader = {
+  uniforms: {
+    tDiffuse:    { value: null },
+    tDepthBuste: { value: null }, // depth du buste isolé
+    uBlurRadius: { value: 0.0 },  // rayon de flou en pixels normalisés (0 = désactivé)
+    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    cameraNear:  { value: camera.near },
+    cameraFar:   { value: camera.far },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tDepthBuste;
+    uniform float uBlurRadius;
+    uniform vec2 uResolution;
+    uniform float cameraNear;
+    uniform float cameraFar;
+    varying vec2 vUv;
+
+    float linearizeDepth(float depth) {
+      float z = depth * 2.0 - 1.0;
+      return (2.0 * cameraNear * cameraFar) / (cameraFar + cameraNear - z * (cameraFar - cameraNear));
+    }
+
+    void main() {
+      // Depth du buste à ce pixel (1.0 = fond, pas de buste)
+      float rawDepthBuste = texture2D(tDepthBuste, vUv).r;
+      bool isBuste = rawDepthBuste < 0.9999;
+
+      // Si c'est le buste, on rend sans flou
+      if (isBuste || uBlurRadius <= 0.0) {
+        gl_FragColor = texture2D(tDiffuse, vUv);
+        return;
+      }
+
+      // Sinon : flou gaussien 9x9
+      vec4 color = vec4(0.0);
+      float total = 0.0;
+      vec2 texel = uBlurRadius / uResolution;
+
+      for (int x = -4; x <= 4; x++) {
+        for (int y = -4; y <= 4; y++) {
+          vec2 offset = vec2(float(x), float(y)) * texel;
+          float w = exp(-float(x*x + y*y) / 4.0); // poids gaussien
+          color += texture2D(tDiffuse, vUv + offset) * w;
+          total += w;
+        }
+      }
+
+      gl_FragColor = color / total;
+    }
+  `
+};
+
+const dofPass = new ShaderPass(DofShader);
+composer.addPass(dofPass);
 
 // Blend final : panneaux par-dessus, masqués par le depth du buste
 const BlendShader = {
@@ -388,6 +453,7 @@ window.addEventListener('resize', () => {
   busteTarget.setSize(window.innerWidth, window.innerHeight);
   panelsTarget.setSize(window.innerWidth, window.innerHeight);
   maskPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
+  dofPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
   sobelPass.uniforms['resolution'].value.set(window.innerWidth * 4, window.innerHeight * 4);
 });
 
@@ -417,7 +483,16 @@ function animate() {
   renderer.setClearColor(0x000000, 1);
   renderer.setRenderTarget(null);
 
-  // 4. Mise à jour des uniforms et rendu final
+  // 4. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
+  const camDist   = camera.position.length();
+  const dofNear   = 3;
+  const dofFar    = 12;
+  const dofT      = Math.max(0, Math.min(1, (camDist - dofNear) / (dofFar - dofNear)));
+  const maxBlur   = 3.0; // rayon en pixels
+  dofPass.uniforms['uBlurRadius'].value    = maxBlur * dofT;
+  dofPass.uniforms['tDepthBuste'].value    = busteTarget.depthTexture;
+
+  // 5. Mise à jour des uniforms et rendu final
   maskPass.uniforms['tOriginal'].value     = originalTarget.texture;
   blendPass.uniforms['tPanels'].value      = panelsTarget.texture;
   blendPass.uniforms['tDepthBuste'].value  = busteTarget.depthTexture;
