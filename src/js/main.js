@@ -609,6 +609,7 @@ function createWordSprite(text, radius) {
   const mat = new THREE.MeshBasicMaterial({
     map:         textureBW,
     transparent: true,
+    alphaTest:   0.01,
     depthTest:   true,
     depthWrite:  true,
     side:        THREE.DoubleSide,
