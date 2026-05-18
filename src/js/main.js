@@ -10,16 +10,17 @@ import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 6);
 
 const canvas = document.getElementById('bg-smoke');
-const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// Éclairage
+// ─── ÉCLAIRAGE ────────────────────────────────────────────────────────────────
+
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 1);
 scene.add(hemiLight);
 
@@ -62,6 +63,15 @@ const panelsTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.inner
 panelsTarget.depthTexture = new THREE.DepthTexture();
 panelsTarget.depthTexture.type = THREE.UnsignedShortType;
 
+// Mots seuls → depth isolé, sans aucun post-processing
+const wordsTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  format: THREE.RGBAFormat,
+});
+wordsTarget.depthTexture = new THREE.DepthTexture();
+wordsTarget.depthTexture.type = THREE.UnsignedShortType;
+
 // ─── POST-PROCESSING ──────────────────────────────────────────────────────────
 
 const composer = new EffectComposer(renderer);
@@ -89,7 +99,7 @@ const MaskShader = {
     tOriginal:   { value: originalTarget.texture },
     uMouse:      { value: new THREE.Vector2(-999, -999) },
     uRadius:     { value: 80.0 },
-    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -114,17 +124,17 @@ const MaskShader = {
       float mask = smoothstep(uRadius - 100.0, uRadius + 100.0, dist);
       gl_FragColor = mix(original, processed, mask);
     }
-  `
+  `,
 };
 const maskPass = new ShaderPass(MaskShader);
 composer.addPass(maskPass);
 
-// Depth of Field custom : floute tout sauf le buste
+// Depth of Field : floute tout sauf le buste
 const DofShader = {
   uniforms: {
     tDiffuse:    { value: null },
-    tDepthBuste: { value: null }, // depth du buste isolé
-    uBlurRadius: { value: 0.0 },  // rayon de flou en pixels normalisés (0 = désactivé)
+    tDepthBuste: { value: null },
+    uBlurRadius: { value: 0.0 },
     uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     cameraNear:  { value: camera.near },
     cameraFar:   { value: camera.far },
@@ -151,17 +161,15 @@ const DofShader = {
     }
 
     void main() {
-      // Depth du buste à ce pixel (1.0 = fond, pas de buste)
       float rawDepthBuste = texture2D(tDepthBuste, vUv).r;
       bool isBuste = rawDepthBuste < 0.9999;
 
-      // Si c'est le buste, on rend sans flou
       if (isBuste || uBlurRadius <= 0.0) {
         gl_FragColor = texture2D(tDiffuse, vUv);
         return;
       }
 
-      // Sinon : flou gaussien 9x9
+      // Flou gaussien 9x9
       vec4 color = vec4(0.0);
       float total = 0.0;
       vec2 texel = uBlurRadius / uResolution;
@@ -169,7 +177,7 @@ const DofShader = {
       for (int x = -4; x <= 4; x++) {
         for (int y = -4; y <= 4; y++) {
           vec2 offset = vec2(float(x), float(y)) * texel;
-          float w = exp(-float(x*x + y*y) / 4.0); // poids gaussien
+          float w = exp(-float(x*x + y*y) / 4.0);
           color += texture2D(tDiffuse, vUv + offset) * w;
           total += w;
         }
@@ -177,13 +185,12 @@ const DofShader = {
 
       gl_FragColor = color / total;
     }
-  `
+  `,
 };
-
 const dofPass = new ShaderPass(DofShader);
 composer.addPass(dofPass);
 
-// Blend final : panneaux par-dessus, masqués par le depth du buste
+// Blend panneaux : compositage panneaux sur scène principale avec depth buste
 const BlendShader = {
   uniforms: {
     tDiffuse:     { value: null },
@@ -220,18 +227,68 @@ const BlendShader = {
       float depthBuste = linearizeDepth(texture2D(tDepthBuste, vUv).r);
       float depthPanel = linearizeDepth(texture2D(tDepthPanels, vUv).r);
 
-      // Affiche le panneau uniquement s'il est devant le buste
       if (panel.a > 0.1 && depthPanel < depthBuste) {
         gl_FragColor = mix(base, panel, panel.a);
       } else {
         gl_FragColor = base;
       }
     }
-  `
+  `,
 };
 const blendPass = new ShaderPass(BlendShader);
-blendPass.renderToScreen = true;
+// Ne rend plus à l'écran directement : le FinalBlendPass prend le relais
+blendPass.renderToScreen = false;
 composer.addPass(blendPass);
+
+// Blend final : compositage des mots par-dessus tout, avec occlusion par le buste
+const FinalBlendShader = {
+  uniforms: {
+    tDiffuse:    { value: null },
+    tWords:      { value: wordsTarget.texture },
+    tDepthBuste: { value: busteTarget.depthTexture },
+    tDepthWords: { value: wordsTarget.depthTexture },
+    cameraNear:  { value: camera.near },
+    cameraFar:   { value: camera.far },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tWords;
+    uniform sampler2D tDepthBuste;
+    uniform sampler2D tDepthWords;
+    uniform float cameraNear;
+    uniform float cameraFar;
+    varying vec2 vUv;
+
+    float linearizeDepth(float depth) {
+      float z = depth * 2.0 - 1.0;
+      return (2.0 * cameraNear * cameraFar) / (cameraFar + cameraNear - z * (cameraFar - cameraNear));
+    }
+
+    void main() {
+      vec4 base       = texture2D(tDiffuse, vUv);
+      vec4 word       = texture2D(tWords, vUv);
+      float depthBuste = linearizeDepth(texture2D(tDepthBuste, vUv).r);
+      float depthWord  = linearizeDepth(texture2D(tDepthWords, vUv).r);
+
+      // Le mot s'affiche uniquement s'il est devant le buste (ou si le buste est absent)
+      if (word.a > 0.05 && depthWord < depthBuste) {
+        gl_FragColor = mix(base, word, word.a);
+      } else {
+        gl_FragColor = base;
+      }
+    }
+  `,
+};
+const finalBlendPass = new ShaderPass(FinalBlendShader);
+finalBlendPass.renderToScreen = true;
+composer.addPass(finalBlendPass);
 
 // ─── BOUTON FILTRE ────────────────────────────────────────────────────────────
 
@@ -274,9 +331,11 @@ window.addEventListener('mousemove', (e) => {
 
 const sceneBuste = new THREE.Scene();
 sceneBuste.add(new THREE.HemisphereLight(0xffffff, 0x8888aa, 1));
+
 const dirLight2 = new THREE.DirectionalLight(0xffffff, 3);
 dirLight2.position.set(20, 0, 45);
 sceneBuste.add(dirLight2);
+
 const backLight2 = new THREE.DirectionalLight(0xffffff, 3);
 backLight2.position.set(-20, 0, -45);
 sceneBuste.add(backLight2);
@@ -286,7 +345,6 @@ const loader = new GLTFLoader();
 loader.load(
   '/models/buste.glb',
   (gltf) => {
-    // Buste dans la scène principale (post-processing + Sobel)
     scene.add(gltf.scene);
 
     gltf.scene.traverse((child) => {
@@ -328,61 +386,9 @@ loader.load(
   (error) => console.error('Erreur de chargement:', error)
 );
 
-// ─── ATELIER 3D ───────────────────────────────────────────────────────────────
-
-const textureLoader = new THREE.TextureLoader();
-
-const floorTex    = textureLoader.load('/src/img/wall_b.png');
-const wallLeftTex = textureLoader.load('/src/img/wall_l.png');
-const wallBackTex = textureLoader.load('/src/img/wall_r.png');
-const ceilTex     = textureLoader.load('/src/img/wall_top.png');
-
-floorTex.colorSpace    = THREE.SRGBColorSpace;
-wallLeftTex.colorSpace = THREE.SRGBColorSpace;
-wallBackTex.colorSpace = THREE.SRGBColorSpace;
-ceilTex.colorSpace     = THREE.SRGBColorSpace;
-
-const W = 160, H = 60, D = 160;
-const room = new THREE.Group();
-
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(W, D),
-  new THREE.MeshBasicMaterial({ map: floorTex })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.position.set(0, -H / 2, 0);
-room.add(floor);
-
-const ceil = new THREE.Mesh(
-  new THREE.PlaneGeometry(W, D),
-  new THREE.MeshBasicMaterial({ map: ceilTex })
-);
-ceil.rotation.x = Math.PI / 2;
-ceil.rotation.z = Math.PI / 4;
-ceil.position.set(-36, H / 2, -30);
-room.add(ceil);
-
-const wallLeft = new THREE.Mesh(
-  new THREE.PlaneGeometry(D, H),
-  new THREE.MeshBasicMaterial({ map: wallLeftTex })
-);
-wallLeft.rotation.y = Math.PI / 2;
-wallLeft.position.set(-W / 2, 0, 0);
-room.add(wallLeft);
-
-const wallBack = new THREE.Mesh(
-  new THREE.PlaneGeometry(W, H),
-  new THREE.MeshBasicMaterial({ map: wallBackTex })
-);
-wallBack.position.set(0, 0, -D / 2);
-room.add(wallBack);
-
-room.rotation.y = Math.PI / -4;
-room.position.set(0, 10, 20);
-scene.add(room);
-
 // ─── ŒUVRES SUR CYLINDRE ──────────────────────────────────────────────────────
 
+const textureLoader = new THREE.TextureLoader();
 const sceneUI = new THREE.Scene();
 
 const cylinderRadius = 4;
@@ -400,7 +406,7 @@ const works = [
   { src: '/src/img/oeuvre4.png' },
 ].map((w, i) => ({
   ...w,
-  angle: (i / workCount) * Math.PI * 2
+  angle: (i / workCount) * Math.PI * 2,
 }));
 
 works.forEach(({ src, angle }) => {
@@ -442,6 +448,155 @@ works.forEach(({ src, angle }) => {
   sceneUI.add(panel);
 });
 
+// ─── NUAGE DE MOTS ────────────────────────────────────────────────────────────
+
+// Scène isolée : aucun post-processing ne la touche
+const sceneWords = new THREE.Scene();
+
+// Palette graffiti : couleurs vives saturées
+const GRAFFITI_COLORS = [
+  '#FF2D2D', // rouge
+  '#FF6B00', // orange
+  '#FFE600', // jaune
+  '#00E676', // vert fluo
+  '#00CFFF', // cyan
+  '#D500F9', // violet
+  '#FF4081', // rose
+  '#CCFF00', // vert acide
+];
+
+const GRAFFITI_FONTS = ['BASQUIAT'];
+
+/**
+ * Crée une texture canvas pour un mot donné.
+ * @param {string} text
+ * @param {{ color: string, fontSize: number, font: string, skew: number }} opts
+ * @returns {{ texture: THREE.CanvasTexture, aspect: number }}
+ */
+function makeWordTexture(text, { color, fontSize, font, skew }) {
+  const cvs = document.createElement('canvas');
+  const ctx = cvs.getContext('2d');
+
+  ctx.font = `${fontSize}px ${font}`;
+  const metrics  = ctx.measureText(text);
+  const textW    = Math.ceil(metrics.width) + 20;
+  const textH    = fontSize + 16;
+  const skewPad  = Math.abs(skew) * textH;
+
+  cvs.width  = textW + skewPad * 2;
+  cvs.height = textH + 4;
+
+  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  ctx.save();
+  ctx.transform(1, 0, skew, 1, skewPad, 0);
+
+  // Contour noir pour la lisibilité
+  ctx.font        = `${fontSize}px ${font}`;
+  ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+  ctx.lineWidth   = fontSize * 0.12;
+  ctx.lineJoin    = 'round';
+  ctx.strokeText(text, 10, fontSize);
+
+  // Texte coloré
+  ctx.fillStyle = color;
+  ctx.fillText(text, 10, fontSize);
+
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(cvs);
+  tex.needsUpdate = true;
+  return { texture: tex, aspect: cvs.width / cvs.height };
+}
+
+/**
+ * Crée un Mesh plan billboard pour un mot.
+ * @param {string} text
+ * @returns {THREE.Mesh}
+ */
+function createWordSprite(text) {
+  const color    = GRAFFITI_COLORS[Math.floor(Math.random() * GRAFFITI_COLORS.length)];
+  const font     = GRAFFITI_FONTS[Math.floor(Math.random() * GRAFFITI_FONTS.length)];
+  const fontSize = 68 + Math.floor(Math.random() * 28);
+  const skew     = (Math.random() - 0.5) * 0.4;
+
+  const { texture, aspect } = makeWordTexture(text, { color, fontSize, font, skew });
+
+  const worldH = 0.5 + Math.random() * 0.25;
+  const worldW = worldH * aspect;
+
+  const geo = new THREE.PlaneGeometry(worldW, worldH);
+  const mat = new THREE.MeshBasicMaterial({
+    map:         texture,
+    transparent: true,
+    depthTest:   true,
+    depthWrite:  true,
+    side:        THREE.DoubleSide,
+  });
+
+  return new THREE.Mesh(geo, mat);
+}
+
+/**
+ * Lit les mots depuis `.article p`, les positionne sur une ellipsoïde
+ * avec la moitié devant (z > 0) et l'autre moitié derrière (z < 0).
+ * Les sprites sont ajoutés dans sceneWords, isolée du post-processing.
+ */
+function buildWordCloud() {
+  const words = Array.from(
+    document.querySelectorAll('.article p')
+  ).map(p => p.textContent.trim()).filter(Boolean);
+
+  const RX = 3.8;
+  const RY = 2.5;
+  const RZ = 2.2;
+
+  const half = Math.ceil(words.length / 2);
+  const placed = [];
+
+  words.forEach((word, i) => {
+    const sprite = createWordSprite(word);
+    const hw = sprite.geometry.parameters.width  / 2;
+    const hh = sprite.geometry.parameters.height / 2;
+
+    const zSign = i < half ? 1 : -1;
+    let x, y, z;
+
+    for (let attempt = 0; attempt < 60; attempt++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = (Math.random() - 0.5) * Math.PI * 0.85;
+
+      x = RX * Math.cos(phi) * Math.cos(theta);
+      y = RY * Math.sin(phi);
+      z = zSign * RZ * (0.3 + Math.random() * 0.7);
+
+      const overlaps = placed.some(p => {
+        if (Math.abs(z - p.z) > 1.2) return false;
+        return Math.abs(x - p.x) < (hw + p.hw) * 1.15
+            && Math.abs(y - p.y) < (hh + p.hh) * 1.15;
+      });
+
+      if (!overlaps) break;
+    }
+
+    placed.push({ x, y, z, hw, hh });
+    sprite.position.set(x, y, z);
+
+    sprite.userData.basePos     = sprite.position.clone();
+    sprite.userData.floatSpeed  = 0.4 + Math.random() * 0.4;
+    sprite.userData.floatAmpY   = 0.04 + Math.random() * 0.04;
+    sprite.userData.floatAmpX   = 0.02 + Math.random() * 0.02;
+    sprite.userData.floatOffset = Math.random() * Math.PI * 2;
+
+    sceneWords.add(sprite);
+  });
+}
+
+const basquiatFont = new FontFace('BASQUIAT', 'url(/fonts/BASQUIAT.otf)');
+basquiatFont.load().then((font) => {
+  document.fonts.add(font);
+  buildWordCloud();
+}).catch(() => buildWordCloud());
+
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 
 window.addEventListener('resize', () => {
@@ -452,6 +607,7 @@ window.addEventListener('resize', () => {
   originalTarget.setSize(window.innerWidth, window.innerHeight);
   busteTarget.setSize(window.innerWidth, window.innerHeight);
   panelsTarget.setSize(window.innerWidth, window.innerHeight);
+  wordsTarget.setSize(window.innerWidth, window.innerHeight);
   maskPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
   dofPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
   sobelPass.uniforms['resolution'].value.set(window.innerWidth * 4, window.innerHeight * 4);
@@ -459,11 +615,27 @@ window.addEventListener('resize', () => {
 
 // ─── ANIMATE ──────────────────────────────────────────────────────────────────
 
+const clock = new THREE.Clock();
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
-  // 1. Scène principale → originalTarget (masque circulaire + post-processing)
+  const t = clock.getElapsedTime();
+
+  // Billboard + flottement doux des sprites de mots
+  sceneWords.children.forEach((obj) => {
+    const { basePos, floatSpeed, floatAmpY, floatAmpX, floatOffset } = obj.userData;
+    if (!basePos) return;
+
+    obj.position.x = basePos.x + Math.sin(t * floatSpeed + floatOffset)               * floatAmpX;
+    obj.position.y = basePos.y + Math.sin(t * floatSpeed + floatOffset + Math.PI / 2) * floatAmpY;
+
+    // Billboard : alignement quaternion sur la caméra
+    obj.quaternion.copy(camera.quaternion);
+  });
+
+  // 1. Scène principale → originalTarget (pour le masque circulaire)
   renderer.setRenderTarget(originalTarget);
   renderer.clear();
   renderer.render(scene, camera);
@@ -475,28 +647,39 @@ function animate() {
   renderer.render(sceneBuste, camera);
   renderer.setRenderTarget(null);
 
-  // 3. Panneaux seuls → panelsTarget (depth isolé, color transparent)
+  // 3. Panneaux seuls → panelsTarget (depth isolé, fond transparent)
   renderer.setRenderTarget(panelsTarget);
   renderer.setClearColor(0x000000, 0);
-  renderer.clear(true, true, false); // efface color + depth uniquement
+  renderer.clear(true, true, false);
   renderer.render(sceneUI, camera);
   renderer.setClearColor(0x000000, 1);
   renderer.setRenderTarget(null);
 
-  // 4. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
-  const camDist   = camera.position.length();
-  const dofNear   = 3;
-  const dofFar    = 12;
-  const dofT      = Math.max(0, Math.min(1, (camDist - dofNear) / (dofFar - dofNear)));
-  const maxBlur   = 3.0; // rayon en pixels
-  dofPass.uniforms['uBlurRadius'].value    = maxBlur * dofT;
-  dofPass.uniforms['tDepthBuste'].value    = busteTarget.depthTexture;
+  // 4. Mots seuls → wordsTarget (depth isolé, fond transparent, sans post-processing)
+  renderer.setRenderTarget(wordsTarget);
+  renderer.setClearColor(0x000000, 0);
+  renderer.clear(true, true, false);
+  renderer.render(sceneWords, camera);
+  renderer.setClearColor(0x000000, 1);
+  renderer.setRenderTarget(null);
 
-  // 5. Mise à jour des uniforms et rendu final
-  maskPass.uniforms['tOriginal'].value     = originalTarget.texture;
-  blendPass.uniforms['tPanels'].value      = panelsTarget.texture;
-  blendPass.uniforms['tDepthBuste'].value  = busteTarget.depthTexture;
-  blendPass.uniforms['tDepthPanels'].value = panelsTarget.depthTexture;
+  // 5. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
+  const camDist = camera.position.length();
+  const dofNear = 3;
+  const dofFar  = 12;
+  const dofT    = Math.max(0, Math.min(1, (camDist - dofNear) / (dofFar - dofNear)));
+  const maxBlur = 3.0;
+  dofPass.uniforms['uBlurRadius'].value = maxBlur * dofT;
+  dofPass.uniforms['tDepthBuste'].value = busteTarget.depthTexture;
+
+  // 6. Mise à jour des uniforms et rendu final via le composer
+  maskPass.uniforms['tOriginal'].value      = originalTarget.texture;
+  blendPass.uniforms['tPanels'].value       = panelsTarget.texture;
+  blendPass.uniforms['tDepthBuste'].value   = busteTarget.depthTexture;
+  blendPass.uniforms['tDepthPanels'].value  = panelsTarget.depthTexture;
+  finalBlendPass.uniforms['tWords'].value      = wordsTarget.texture;
+  finalBlendPass.uniforms['tDepthBuste'].value = busteTarget.depthTexture;
+  finalBlendPass.uniforms['tDepthWords'].value = wordsTarget.depthTexture;
   composer.render();
 }
 
