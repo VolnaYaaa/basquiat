@@ -295,44 +295,12 @@ const finalBlendPass = new ShaderPass(FinalBlendShader);
 finalBlendPass.renderToScreen = true;
 composer.addPass(finalBlendPass);
 
-// ─── BOUTON FILTRE ────────────────────────────────────────────────────────────
-
-const btn = document.createElement('button');
-btn.textContent = 'Désactiver le filtre';
-btn.style.cssText = `
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 100;
-  padding: 10px 18px;
-  background: #000;
-  color: #fff;
-  border: 1px solid #fff;
-  font-family: monospace;
-  font-size: 13px;
-  cursor: pointer;
-`;
-document.body.appendChild(btn);
-
-let filterActive = true;
-
-btn.addEventListener('click', () => {
-  filterActive = !filterActive;
-  btn.textContent = filterActive ? 'Désactiver le filtre' : 'Activer le filtre';
-  if (!filterActive) {
-    maskPass.uniforms['uMouse'].value.set(-9999, -9999);
-    maskPass.uniforms['uRadius'].value = 99999;
-  } else {
-    maskPass.uniforms['uRadius'].value = 80.0;
-  }
-});
 
 const mouse2D = new THREE.Vector2(-999, -999);
 
 window.addEventListener('mousemove', (e) => {
   mouse2D.x =  (e.clientX / window.innerWidth)  * 2 - 1;
   mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
-  if (!filterActive) return;
   maskPass.uniforms['uMouse'].value.set(e.clientX, window.innerHeight - e.clientY);
 });
 
@@ -420,16 +388,50 @@ works.forEach(({ src, angle }) => {
   textureLoader.load(src, (tex) => {
     tex.colorSpace = THREE.SRGBColorSpace;
 
-    const panelW = PANEL_H * (tex.image.width / tex.image.height);
+    const panelW  = PANEL_H * (tex.image.width / tex.image.height);
+    const wavePhase = Math.random() * Math.PI * 2;
 
-    const geo = new THREE.PlaneGeometry(panelW, PANEL_H);
-    const mat = new THREE.MeshBasicMaterial({
-      map:         tex,
-      side:        THREE.DoubleSide,
+    const geo = new THREE.PlaneGeometry(panelW, PANEL_H, 40, 40);
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: tex },
+        uTime:    { value: 0.0 },
+        uOpacity: { value: 0.0 },
+        uPhase:   { value: wavePhase },
+      },
+      vertexShader: `
+        uniform float uTime;
+        uniform float uPhase;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec3 pos = position;
+          float wave =
+            sin(pos.x * 2.0 + uTime * 0.9 + uPhase) * 0.14
+            + sin(pos.y * 1.5 + uTime * 0.7 + uPhase * 1.2) * 0.09
+            + sin(pos.x * 1.0 + pos.y * 1.3 + uTime * 1.1 + uPhase * 0.8) * 0.05;
+          pos.z += wave;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        uniform float uTime;
+        uniform float uOpacity;
+        uniform float uPhase;
+        varying vec2 vUv;
+        void main() {
+          vec2 uv = vUv;
+          uv.x += sin(uv.y * 10.0 + uTime * 1.0 + uPhase) * 0.005;
+          uv.y += sin(uv.x * 8.0  + uTime * 0.8 + uPhase) * 0.004;
+          vec4 col = texture2D(uTexture, uv);
+          gl_FragColor = vec4(col.rgb, col.a * uOpacity);
+        }
+      `,
       transparent: true,
-      opacity:     0,
       depthTest:   true,
       depthWrite:  true,
+      side:        THREE.DoubleSide,
     });
 
     const panel = new THREE.Mesh(geo, mat);
@@ -638,7 +640,7 @@ function buildWordCloud() {
     sprite.position.set(x, y, z);
 
     sprite.userData.baseY       = y;
-    sprite.userData.floatSpeed  = 0.4 + Math.random() * 0.4;
+    sprite.userData.floatSpeed  = 0.9;
     sprite.userData.floatAmpY   = 0.04 + Math.random() * 0.04;
     sprite.userData.floatOffset = Math.random() * Math.PI * 2;
 
@@ -739,8 +741,9 @@ function animate() {
   const panelFadeEnd   = 13;
   const panelOpacity   = Math.max(0, Math.min(1, (camDist - panelFadeStart) / (panelFadeEnd - panelFadeStart)));
   panelMeshes.forEach(mesh => {
-    mesh.visible          = panelOpacity > 0;
-    mesh.material.opacity = panelOpacity;
+    mesh.visible = panelOpacity > 0;
+    mesh.material.uniforms.uOpacity.value = panelOpacity;
+    mesh.material.uniforms.uTime.value    = t;
   });
 
   const wordFadeStart = 6.0;
