@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import busteUrl    from 'url:../../public/models/buste.glb';
+import busteUrl    from 'url:../../public/models/export2.glb';
 import cursorUrl   from 'url:../img/cursor.svg';
 import oeuvre1Url  from 'url:../img/oeuvre1.png';
 import oeuvre2Url  from 'url:../img/oeuvre2.png';
@@ -680,7 +680,7 @@ function buildWordCloud() {
   });
 }
 
-document.fonts.ready.then(() => buildWordCloud());
+document.fonts.load('100px BASQUIAT').then(() => buildWordCloud()).catch(() => buildWordCloud());
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 
