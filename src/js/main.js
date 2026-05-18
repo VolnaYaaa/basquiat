@@ -395,7 +395,7 @@ const PANEL_H        = 4.0;
 const panelMeshes = [];
 
 const works = [
-  { src: '/src/img/oeuvre1.png' },
+  { src: 'img/oeuvre1.png' },
   { src: '/src/img/oeuvre2.png' },
   { src: '/src/img/oeuvre3.png' },
   { src: '/src/img/oeuvre4.png' },
