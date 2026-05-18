@@ -521,7 +521,7 @@ function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false,
   ctx.lineJoin    = 'round';
   ctx.strokeText(text, 10, fontSize);
 
-  ctx.fillStyle = grayscale ? '#000000' : color;
+  ctx.fillStyle = grayscale ? '#ffffff' : color;
   ctx.fillText(text, 4, fontSize);
 
   if (strikethrough) {
