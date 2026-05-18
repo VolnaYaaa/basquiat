@@ -24,11 +24,11 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 5);
 scene.add(hemiLight);
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 30);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 dirLight.position.set(20, 0, 45);
 scene.add(dirLight);
 
-const backLight = new THREE.DirectionalLight(0xffffff, 30);
+const backLight = new THREE.DirectionalLight(0xffffff, 1);
 backLight.position.set(-20, 0, -45);
 scene.add(backLight);
 
@@ -641,6 +641,11 @@ function buildWordCloud() {
     for (let attempt = 0; attempt < 60; attempt++) {
       theta = Math.random() * Math.PI * 2;
       y     = (Math.random() - 0.5) * HEIGHT;
+
+      // Exclure la zone devant le visage (theta ≈ PI/2, face caméra)
+      let dThetaFace = Math.abs(theta - Math.PI / 2);
+      if (dThetaFace > Math.PI) dThetaFace = Math.PI * 2 - dThetaFace;
+      if (dThetaFace < Math.PI / 3 && y > -0.5 && y < 2.5) continue;
 
       const overlaps = placed.some(p => {
         let dTheta = Math.abs(theta - p.theta);
