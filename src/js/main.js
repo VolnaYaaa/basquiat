@@ -1,11 +1,17 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { SobelOperatorShader } from 'three/addons/shaders/SobelOperatorShader.js';
-import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import busteUrl    from 'url:../../public/models/buste.glb';
+import cursorUrl   from 'url:../img/cursor.svg';
+import oeuvre1Url  from 'url:../img/oeuvre1.png';
+import oeuvre2Url  from 'url:../img/oeuvre2.png';
+import oeuvre3Url  from 'url:../img/oeuvre3.png';
+import oeuvre4Url  from 'url:../img/oeuvre4.png';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 
 const scene = new THREE.Scene();
@@ -311,7 +317,7 @@ cursorEl.style.cssText = `
   transform: translate(-50%, -50%);
 `;
 const cursorImg = document.createElement('img');
-cursorImg.src = '/src/img/cursor.svg';
+cursorImg.src = cursorUrl;
 cursorImg.style.width = '40px';
 cursorEl.appendChild(cursorImg);
 document.body.appendChild(cursorEl);
@@ -340,7 +346,7 @@ sceneBuste.add(backLight2);
 const loader = new GLTFLoader();
 
 loader.load(
-  '/models/export2.glb',
+  busteUrl,
   (gltf) => {
     scene.add(gltf.scene);
 
@@ -395,10 +401,10 @@ const PANEL_H        = 4.0;
 const panelMeshes = [];
 
 const works = [
-  { src: 'img/oeuvre1.png' },
-  { src: '/src/img/oeuvre2.png' },
-  { src: '/src/img/oeuvre3.png' },
-  { src: '/src/img/oeuvre4.png' },
+  { src: oeuvre1Url },
+  { src: oeuvre2Url },
+  { src: oeuvre3Url },
+  { src: oeuvre4Url },
 ].map((w, i) => ({
   ...w,
   angle: (i / workCount) * Math.PI * 2,
@@ -674,11 +680,7 @@ function buildWordCloud() {
   });
 }
 
-const basquiatFont = new FontFace('BASQUIAT', 'url(/fonts/Basquiat-Regular.woff)');
-basquiatFont.load().then((font) => {
-  document.fonts.add(font);
-  buildWordCloud();
-}).catch(() => buildWordCloud());
+document.fonts.ready.then(() => buildWordCloud());
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 

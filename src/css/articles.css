@@ -33,8 +33,8 @@
 }
 
 @font-face {
-  font-family: 'GroteskRemix';
-  src: url('/public/models/fonts/Basquiat-Regular.woff') format('woff');
+  font-family: 'BASQUIAT';
+  src: url('../../public/fonts/Basquiat-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
