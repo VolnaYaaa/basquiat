@@ -87,8 +87,8 @@ const outlinePass = new OutlinePass(
   camera
 );
 outlinePass.edgeStrength = 3;
-outlinePass.edgeGlow = 0;
-outlinePass.edgeThickness = 1;
+outlinePass.edgeGlow = 0.5;
+outlinePass.edgeThickness = 5;
 outlinePass.visibleEdgeColor.set(0xffffff);
 composer.addPass(outlinePass);
 
@@ -510,7 +510,7 @@ function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false,
   ctx.transform(1, 0, skew, 1, skewPad, 0);
 
   ctx.font        = `${fontSize}px ${font}`;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
   ctx.lineWidth   = fontSize * 0.03;
   ctx.lineJoin    = 'round';
   ctx.strokeText(text, 10, fontSize);
