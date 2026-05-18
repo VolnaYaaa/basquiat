@@ -27,7 +27,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // ─── ÉCLAIRAGE ────────────────────────────────────────────────────────────────
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 5);
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x000000,8);
 scene.add(hemiLight);
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -606,10 +606,31 @@ function createWordSprite(text, radius) {
   const worldW = worldH * aspect;
 
   const geo = createCurvedPlaneGeometry(worldW, worldH, radius);
-  const mat = new THREE.MeshBasicMaterial({
-    map:         textureBW,
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uMap:     { value: textureBW },
+      uOpacity: { value: 1.0 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D uMap;
+      uniform float uOpacity;
+      varying vec2 vUv;
+      void main() {
+        vec2 uv = vUv;
+        if (gl_FrontFacing) uv.x = 1.0 - uv.x;
+        vec4 col = texture2D(uMap, uv);
+        if (col.a < 0.1) discard;
+        gl_FragColor = vec4(col.rgb, col.a * uOpacity);
+      }
+    `,
     transparent: true,
-    alphaTest:   0.01,
     depthTest:   true,
     depthWrite:  true,
     side:        THREE.DoubleSide,
@@ -724,12 +745,10 @@ function animate() {
   const hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
   if (hit !== hoveredWord) {
     if (hoveredWord) {
-      hoveredWord.material.map = hoveredWord.userData.textureBW;
-      hoveredWord.material.needsUpdate = true;
+      hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;
     }
     if (hit) {
-      hit.material.map = hit.userData.textureHover;
-      hit.material.needsUpdate = true;
+      hit.material.uniforms.uMap.value = hit.userData.textureHover;
     }
     hoveredWord = hit;
   }
@@ -779,7 +798,7 @@ function animate() {
   const wordOpacity   = Math.max(0, Math.min(1, (camDist - wordFadeEnd) / (wordFadeStart - wordFadeEnd)));
   sceneWords.children.forEach(mesh => {
     mesh.visible = wordOpacity > 0;
-    if (mesh.material) mesh.material.opacity = wordOpacity;
+    if (mesh.material?.uniforms) mesh.material.uniforms.uOpacity.value = wordOpacity;
   });
 
   // 6. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
