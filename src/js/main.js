@@ -21,14 +21,14 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // ─── ÉCLAIRAGE ────────────────────────────────────────────────────────────────
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 1);
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8888aa, 5);
 scene.add(hemiLight);
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+const dirLight = new THREE.DirectionalLight(0xffffff, 30);
 dirLight.position.set(20, 0, 45);
 scene.add(dirLight);
 
-const backLight = new THREE.DirectionalLight(0xffffff, 3);
+const backLight = new THREE.DirectionalLight(0xffffff, 30);
 backLight.position.set(-20, 0, -45);
 scene.add(backLight);
 
@@ -340,7 +340,7 @@ sceneBuste.add(backLight2);
 const loader = new GLTFLoader();
 
 loader.load(
-  '/models/buste.glb',
+  '/models/export2.glb',
   (gltf) => {
     scene.add(gltf.scene);
 
