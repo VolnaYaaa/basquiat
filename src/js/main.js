@@ -517,9 +517,9 @@ function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false,
 
   ctx.font        = `${fontSize}px ${font}`;
   ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
-  ctx.lineWidth   = fontSize * 0.03;
+  ctx.lineWidth   = fontSize * 0.02;
   ctx.lineJoin    = 'round';
-  ctx.strokeText(text, 10, fontSize);
+  ctx.strokeText(text, 8, fontSize);
 
   ctx.fillStyle = grayscale ? '#ffffff' : color;
   ctx.fillText(text, 4, fontSize);
