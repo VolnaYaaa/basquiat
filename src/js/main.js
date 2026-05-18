@@ -568,7 +568,7 @@ function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
 function createWordSprite(text, radius) {
   const color    = GRAFFITI_COLORS[Math.floor(Math.random() * GRAFFITI_COLORS.length)];
   const font     = GRAFFITI_FONTS[Math.floor(Math.random() * GRAFFITI_FONTS.length)];
-  const fontSize = 68 + Math.floor(Math.random() * 28);
+  const fontSize = 100 + Math.floor(Math.random() * 28);
   const skew     = (Math.random() - 0.5) * 0.4;
 
   const { texture: textureBW,    aspect } = makeWordTexture(text, { color, fontSize, font, skew, grayscale: true });
@@ -604,14 +604,13 @@ function buildWordCloud() {
     document.querySelectorAll('.article p')
   ).map(p => p.textContent.trim()).filter(Boolean);
 
-  const RADIUS = 3.0;
   const HEIGHT = 4.5;
 
   const placed = [];
 
   words.forEach((word) => {
-    const curveRadius = RADIUS * (0.5 + Math.random() * 1.2);
-    const sprite = createWordSprite(word, curveRadius);
+    const wordRadius = 1.8 + Math.random() * 2.4; // entre 1.8 et 4.2
+    const sprite = createWordSprite(word, wordRadius);
     const hw = sprite.userData.worldW / 2;
     const hh = sprite.userData.worldH / 2;
 
@@ -624,15 +623,15 @@ function buildWordCloud() {
       const overlaps = placed.some(p => {
         let dTheta = Math.abs(theta - p.theta);
         if (dTheta > Math.PI) dTheta = Math.PI * 2 - dTheta;
-        const arc = dTheta * RADIUS;
+        const arc = dTheta * wordRadius;
         return arc < (hw + p.hw) * 1.1 && Math.abs(y - p.y) < (hh + p.hh) * 1.1;
       });
 
       if (!overlaps) break;
     }
 
-    const x = RADIUS * Math.cos(theta);
-    const z = RADIUS * Math.sin(theta);
+    const x = wordRadius * Math.cos(theta);
+    const z = wordRadius * Math.sin(theta);
 
     // Oriente le plan vers l'extérieur du cylindre
     sprite.rotation.y = Math.PI / 2 - theta;
