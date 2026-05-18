@@ -10,7 +10,7 @@ import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 6);
 
 const canvas = document.getElementById('bg-smoke');
@@ -240,15 +240,16 @@ const blendPass = new ShaderPass(BlendShader);
 blendPass.renderToScreen = false;
 composer.addPass(blendPass);
 
-// Blend final : compositage des mots par-dessus tout, avec occlusion par le buste
+// Blend final : compositage des mots par-dessus tout, avec occlusion par le buste et les panneaux
 const FinalBlendShader = {
   uniforms: {
-    tDiffuse:    { value: null },
-    tWords:      { value: wordsTarget.texture },
-    tDepthBuste: { value: busteTarget.depthTexture },
-    tDepthWords: { value: wordsTarget.depthTexture },
-    cameraNear:  { value: camera.near },
-    cameraFar:   { value: camera.far },
+    tDiffuse:     { value: null },
+    tWords:       { value: wordsTarget.texture },
+    tDepthBuste:  { value: busteTarget.depthTexture },
+    tDepthWords:  { value: wordsTarget.depthTexture },
+    tDepthPanels: { value: panelsTarget.depthTexture },
+    cameraNear:   { value: camera.near },
+    cameraFar:    { value: camera.far },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -262,6 +263,7 @@ const FinalBlendShader = {
     uniform sampler2D tWords;
     uniform sampler2D tDepthBuste;
     uniform sampler2D tDepthWords;
+    uniform sampler2D tDepthPanels;
     uniform float cameraNear;
     uniform float cameraFar;
     varying vec2 vUv;
@@ -272,13 +274,16 @@ const FinalBlendShader = {
     }
 
     void main() {
-      vec4 base       = texture2D(tDiffuse, vUv);
-      vec4 word       = texture2D(tWords, vUv);
-      float depthBuste = linearizeDepth(texture2D(tDepthBuste, vUv).r);
-      float depthWord  = linearizeDepth(texture2D(tDepthWords, vUv).r);
+      vec4 base        = texture2D(tDiffuse, vUv);
+      vec4 word        = texture2D(tWords, vUv);
+      float rawPanel   = texture2D(tDepthPanels, vUv).r;
+      float depthBuste  = linearizeDepth(texture2D(tDepthBuste, vUv).r);
+      float depthWord   = linearizeDepth(texture2D(tDepthWords, vUv).r);
+      float depthPanel  = linearizeDepth(rawPanel);
 
-      // Le mot s'affiche uniquement s'il est devant le buste (ou si le buste est absent)
-      if (word.a > 0.05 && depthWord < depthBuste) {
+      bool behindPanel = rawPanel < 0.9999 && depthWord > depthPanel;
+
+      if (word.a > 0.05 && depthWord < depthBuste && !behindPanel) {
         gl_FragColor = mix(base, word, word.a);
       } else {
         gl_FragColor = base;
@@ -322,7 +327,11 @@ btn.addEventListener('click', () => {
   }
 });
 
+const mouse2D = new THREE.Vector2(-999, -999);
+
 window.addEventListener('mousemove', (e) => {
+  mouse2D.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
   if (!filterActive) return;
   maskPass.uniforms['uMouse'].value.set(e.clientX, window.innerHeight - e.clientY);
 });
@@ -391,13 +400,11 @@ loader.load(
 const textureLoader = new THREE.TextureLoader();
 const sceneUI = new THREE.Scene();
 
-const cylinderRadius = 4;
-const cylinderHeight = 4;
-const arcAngle       = Math.PI / 6;
-const segments       = 20;
+const cylinderRadius = 8;
 const workCount      = 4;
-const panelWidth     = cylinderRadius * arcAngle;
-const panelHeight    = cylinderHeight;
+const PANEL_H        = 4.0;
+
+const panelMeshes = [];
 
 const works = [
   { src: '/src/img/oeuvre1.png' },
@@ -410,42 +417,32 @@ const works = [
 }));
 
 works.forEach(({ src, angle }) => {
-  const texture = textureLoader.load(src, (tex) => {
-    const imgRatio   = tex.image.width / tex.image.height;
-    const panelRatio = panelWidth / panelHeight;
+  textureLoader.load(src, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
 
-    if (imgRatio > panelRatio) {
-      const scale = panelRatio / imgRatio;
-      tex.repeat.set(scale, 1);
-      tex.offset.set((1 - scale) / 2, 0);
-    } else {
-      const scale = imgRatio / panelRatio;
-      tex.repeat.set(1, scale);
-      tex.offset.set(0, (1 - scale) / 2);
-    }
-    tex.needsUpdate = true;
+    const panelW = PANEL_H * (tex.image.width / tex.image.height);
+
+    const geo = new THREE.PlaneGeometry(panelW, PANEL_H);
+    const mat = new THREE.MeshBasicMaterial({
+      map:         tex,
+      side:        THREE.DoubleSide,
+      transparent: true,
+      opacity:     0,
+      depthTest:   true,
+      depthWrite:  true,
+    });
+
+    const panel = new THREE.Mesh(geo, mat);
+    panel.visible = false;
+
+    const x = cylinderRadius * Math.cos(angle);
+    const z = cylinderRadius * Math.sin(angle);
+    panel.position.set(x, 1.35, z);
+    panel.rotation.y = Math.PI / 2 - angle;
+
+    panelMeshes.push(panel);
+    sceneUI.add(panel);
   });
-
-  texture.colorSpace = THREE.SRGBColorSpace;
-
-  const geo = new THREE.CylinderGeometry(
-    cylinderRadius, cylinderRadius, cylinderHeight,
-    segments, 1, true,
-    angle - arcAngle * 2, arcAngle
-  );
-
-  const mat = new THREE.MeshBasicMaterial({
-    map: texture,
-    side: THREE.DoubleSide,
-    transparent: true,
-    alphaTest: 0.2,
-    depthTest: true,
-    depthWrite: true,
-  });
-
-  const panel = new THREE.Mesh(geo, mat);
-  panel.position.set(0, 0.35, 0);
-  sceneUI.add(panel);
 });
 
 // ─── NUAGE DE MOTS ────────────────────────────────────────────────────────────
@@ -455,14 +452,14 @@ const sceneWords = new THREE.Scene();
 
 // Palette graffiti : couleurs vives saturées
 const GRAFFITI_COLORS = [
-  '#FF2D2D', // rouge
-  '#FF6B00', // orange
-  '#FFE600', // jaune
-  '#00E676', // vert fluo
-  '#00CFFF', // cyan
-  '#D500F9', // violet
-  '#FF4081', // rose
-  '#CCFF00', // vert acide
+  '#D7261E', // rouge
+  '#D96C1A', // orange
+  '#F2D21B', // jaune
+  '#6E7B3A', // vert
+  '#1F5AA6', // bleu
+  '#6E3BB8', // violet
+  '#8A5A32', // brun
+  '#1CA7A6', // turquoise
 ];
 
 const GRAFFITI_FONTS = ['BASQUIAT'];
@@ -473,7 +470,7 @@ const GRAFFITI_FONTS = ['BASQUIAT'];
  * @param {{ color: string, fontSize: number, font: string, skew: number }} opts
  * @returns {{ texture: THREE.CanvasTexture, aspect: number }}
  */
-function makeWordTexture(text, { color, fontSize, font, skew }) {
+function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false, strikethrough = false }) {
   const cvs = document.createElement('canvas');
   const ctx = cvs.getContext('2d');
 
@@ -490,16 +487,27 @@ function makeWordTexture(text, { color, fontSize, font, skew }) {
   ctx.save();
   ctx.transform(1, 0, skew, 1, skewPad, 0);
 
-  // Contour noir pour la lisibilité
   ctx.font        = `${fontSize}px ${font}`;
-  ctx.strokeStyle = 'rgba(0,0,0,0.85)';
-  ctx.lineWidth   = fontSize * 0.12;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.lineWidth   = fontSize * 0.03;
   ctx.lineJoin    = 'round';
   ctx.strokeText(text, 10, fontSize);
 
-  // Texte coloré
-  ctx.fillStyle = color;
-  ctx.fillText(text, 10, fontSize);
+  ctx.fillStyle = grayscale ? '#000000' : color;
+  ctx.fillText(text, 4, fontSize);
+
+  if (strikethrough) {
+    const lineY = fontSize
+      - metrics.actualBoundingBoxAscent / 2
+      + metrics.actualBoundingBoxDescent / 2;
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = fontSize * 0.07;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(10, lineY);
+    ctx.lineTo(10 + Math.ceil(metrics.width), lineY);
+    ctx.stroke();
+  }
 
   ctx.restore();
 
@@ -509,89 +517,138 @@ function makeWordTexture(text, { color, fontSize, font, skew }) {
 }
 
 /**
- * Crée un Mesh plan billboard pour un mot.
+ * Crée une géométrie courbée qui suit la surface d'un cylindre de rayon `radius`.
+ * Le plan se courbe horizontalement selon l'arc correspondant à `worldW`.
+ */
+function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
+  const arcAngle = worldW / radius;
+  const segH     = 2;
+  const positions = [], normals = [], uvs = [], indices = [];
+
+  for (let j = 0; j <= segH; j++) {
+    for (let i = 0; i <= segmentsW; i++) {
+      const u     = i / segmentsW;
+      const v     = j / segH;
+      const alpha = (u - 0.5) * arcAngle;
+
+      positions.push(
+        radius * Math.sin(alpha),
+        (v - 0.5) * worldH,
+        radius * (Math.cos(alpha) - 1),
+      );
+      normals.push(-Math.sin(alpha), 0, Math.cos(alpha));
+      uvs.push(u, v);
+    }
+  }
+
+  for (let j = 0; j < segH; j++) {
+    for (let i = 0; i < segmentsW; i++) {
+      const a = j * (segmentsW + 1) + i;
+      const b = a + 1;
+      const c = a + (segmentsW + 1);
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('normal',   new THREE.Float32BufferAttribute(normals,   3));
+  geo.setAttribute('uv',       new THREE.Float32BufferAttribute(uvs,       2));
+  geo.setIndex(indices);
+  return geo;
+}
+
+/**
+ * Crée un Mesh courbé pour un mot, adapté au cylindre de rayon `radius`.
  * @param {string} text
+ * @param {number} radius
  * @returns {THREE.Mesh}
  */
-function createWordSprite(text) {
+function createWordSprite(text, radius) {
   const color    = GRAFFITI_COLORS[Math.floor(Math.random() * GRAFFITI_COLORS.length)];
   const font     = GRAFFITI_FONTS[Math.floor(Math.random() * GRAFFITI_FONTS.length)];
   const fontSize = 68 + Math.floor(Math.random() * 28);
   const skew     = (Math.random() - 0.5) * 0.4;
 
-  const { texture, aspect } = makeWordTexture(text, { color, fontSize, font, skew });
+  const { texture: textureBW,    aspect } = makeWordTexture(text, { color, fontSize, font, skew, grayscale: true });
+  const { texture: textureHover         } = makeWordTexture(text, { color, fontSize, font, skew, strikethrough: true });
 
   const worldH = 0.5 + Math.random() * 0.25;
   const worldW = worldH * aspect;
 
-  const geo = new THREE.PlaneGeometry(worldW, worldH);
+  const geo = createCurvedPlaneGeometry(worldW, worldH, radius);
   const mat = new THREE.MeshBasicMaterial({
-    map:         texture,
+    map:         textureBW,
     transparent: true,
     depthTest:   true,
     depthWrite:  true,
     side:        THREE.DoubleSide,
   });
 
-  return new THREE.Mesh(geo, mat);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.userData.textureBW    = textureBW;
+  mesh.userData.textureHover = textureHover;
+  mesh.userData.worldW       = worldW;
+  mesh.userData.worldH       = worldH;
+  return mesh;
 }
 
 /**
- * Lit les mots depuis `.article p`, les positionne sur une ellipsoïde
- * avec la moitié devant (z > 0) et l'autre moitié derrière (z < 0).
- * Les sprites sont ajoutés dans sceneWords, isolée du post-processing.
+ * Lit les mots depuis `.article p`, les positionne sur la surface d'un cylindre
+ * centré sur le buste. Chaque mot est orienté vers l'extérieur du cylindre :
+ * lisible uniquement quand la caméra lui fait face en tournant autour du buste.
  */
 function buildWordCloud() {
   const words = Array.from(
     document.querySelectorAll('.article p')
   ).map(p => p.textContent.trim()).filter(Boolean);
 
-  const RX = 3.8;
-  const RY = 2.5;
-  const RZ = 2.2;
+  const RADIUS = 3.0;
+  const HEIGHT = 4.5;
 
-  const half = Math.ceil(words.length / 2);
   const placed = [];
 
-  words.forEach((word, i) => {
-    const sprite = createWordSprite(word);
-    const hw = sprite.geometry.parameters.width  / 2;
-    const hh = sprite.geometry.parameters.height / 2;
+  words.forEach((word) => {
+    const curveRadius = RADIUS * (0.5 + Math.random() * 1.2);
+    const sprite = createWordSprite(word, curveRadius);
+    const hw = sprite.userData.worldW / 2;
+    const hh = sprite.userData.worldH / 2;
 
-    const zSign = i < half ? 1 : -1;
-    let x, y, z;
+    let theta, y;
 
     for (let attempt = 0; attempt < 60; attempt++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi   = (Math.random() - 0.5) * Math.PI * 0.85;
-
-      x = RX * Math.cos(phi) * Math.cos(theta);
-      y = RY * Math.sin(phi);
-      z = zSign * RZ * (0.3 + Math.random() * 0.7);
+      theta = Math.random() * Math.PI * 2;
+      y     = (Math.random() - 0.5) * HEIGHT;
 
       const overlaps = placed.some(p => {
-        if (Math.abs(z - p.z) > 1.2) return false;
-        return Math.abs(x - p.x) < (hw + p.hw) * 1.15
-            && Math.abs(y - p.y) < (hh + p.hh) * 1.15;
+        let dTheta = Math.abs(theta - p.theta);
+        if (dTheta > Math.PI) dTheta = Math.PI * 2 - dTheta;
+        const arc = dTheta * RADIUS;
+        return arc < (hw + p.hw) * 1.1 && Math.abs(y - p.y) < (hh + p.hh) * 1.1;
       });
 
       if (!overlaps) break;
     }
 
-    placed.push({ x, y, z, hw, hh });
+    const x = RADIUS * Math.cos(theta);
+    const z = RADIUS * Math.sin(theta);
+
+    // Oriente le plan vers l'extérieur du cylindre
+    sprite.rotation.y = Math.PI / 2 - theta;
     sprite.position.set(x, y, z);
 
-    sprite.userData.basePos     = sprite.position.clone();
+    sprite.userData.baseY       = y;
     sprite.userData.floatSpeed  = 0.4 + Math.random() * 0.4;
     sprite.userData.floatAmpY   = 0.04 + Math.random() * 0.04;
-    sprite.userData.floatAmpX   = 0.02 + Math.random() * 0.02;
     sprite.userData.floatOffset = Math.random() * Math.PI * 2;
 
+    placed.push({ theta, y, hw, hh });
     sceneWords.add(sprite);
   });
 }
 
-const basquiatFont = new FontFace('BASQUIAT', 'url(/fonts/BASQUIAT.otf)');
+const basquiatFont = new FontFace('BASQUIAT', 'url(/fonts/Basquiat-Regular.woff)');
 basquiatFont.load().then((font) => {
   document.fonts.add(font);
   buildWordCloud();
@@ -615,6 +672,9 @@ window.addEventListener('resize', () => {
 
 // ─── ANIMATE ──────────────────────────────────────────────────────────────────
 
+const raycaster  = new THREE.Raycaster();
+let hoveredWord  = null;
+
 const clock = new THREE.Clock();
 
 function animate() {
@@ -623,17 +683,27 @@ function animate() {
 
   const t = clock.getElapsedTime();
 
-  // Billboard + flottement doux des sprites de mots
+  // Flottement vertical doux des mots sur le cylindre
   sceneWords.children.forEach((obj) => {
-    const { basePos, floatSpeed, floatAmpY, floatAmpX, floatOffset } = obj.userData;
-    if (!basePos) return;
-
-    obj.position.x = basePos.x + Math.sin(t * floatSpeed + floatOffset)               * floatAmpX;
-    obj.position.y = basePos.y + Math.sin(t * floatSpeed + floatOffset + Math.PI / 2) * floatAmpY;
-
-    // Billboard : alignement quaternion sur la caméra
-    obj.quaternion.copy(camera.quaternion);
+    const { baseY, floatSpeed, floatAmpY, floatOffset } = obj.userData;
+    if (baseY === undefined) return;
+    obj.position.y = baseY + Math.sin(t * floatSpeed + floatOffset) * floatAmpY;
   });
+
+  // Hover : détection par raycasting sur les mots
+  raycaster.setFromCamera(mouse2D, camera);
+  const hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
+  if (hit !== hoveredWord) {
+    if (hoveredWord) {
+      hoveredWord.material.map = hoveredWord.userData.textureBW;
+      hoveredWord.material.needsUpdate = true;
+    }
+    if (hit) {
+      hit.material.map = hit.userData.textureHover;
+      hit.material.needsUpdate = true;
+    }
+    hoveredWord = hit;
+  }
 
   // 1. Scène principale → originalTarget (pour le masque circulaire)
   renderer.setRenderTarget(originalTarget);
@@ -663,8 +733,26 @@ function animate() {
   renderer.setClearColor(0x000000, 1);
   renderer.setRenderTarget(null);
 
-  // 5. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
-  const camDist = camera.position.length();
+  // 5. Apparition des panneaux au dézoom + disparition des mots au zoom
+  const camDist        = camera.position.length();
+
+  const panelFadeStart = 9;
+  const panelFadeEnd   = 13;
+  const panelOpacity   = Math.max(0, Math.min(1, (camDist - panelFadeStart) / (panelFadeEnd - panelFadeStart)));
+  panelMeshes.forEach(mesh => {
+    mesh.visible          = panelOpacity > 0;
+    mesh.material.opacity = panelOpacity;
+  });
+
+  const wordFadeStart = 6.0;
+  const wordFadeEnd   = 5.0;
+  const wordOpacity   = Math.max(0, Math.min(1, (camDist - wordFadeEnd) / (wordFadeStart - wordFadeEnd)));
+  sceneWords.children.forEach(mesh => {
+    mesh.visible = wordOpacity > 0;
+    if (mesh.material) mesh.material.opacity = wordOpacity;
+  });
+
+  // 6. DoF progressif : s'estompe quand la caméra se rapproche, épargne le buste
   const dofNear = 3;
   const dofFar  = 12;
   const dofT    = Math.max(0, Math.min(1, (camDist - dofNear) / (dofFar - dofNear)));
@@ -672,14 +760,15 @@ function animate() {
   dofPass.uniforms['uBlurRadius'].value = maxBlur * dofT;
   dofPass.uniforms['tDepthBuste'].value = busteTarget.depthTexture;
 
-  // 6. Mise à jour des uniforms et rendu final via le composer
+  // 7. Mise à jour des uniforms et rendu final via le composer
   maskPass.uniforms['tOriginal'].value      = originalTarget.texture;
   blendPass.uniforms['tPanels'].value       = panelsTarget.texture;
   blendPass.uniforms['tDepthBuste'].value   = busteTarget.depthTexture;
   blendPass.uniforms['tDepthPanels'].value  = panelsTarget.depthTexture;
-  finalBlendPass.uniforms['tWords'].value      = wordsTarget.texture;
-  finalBlendPass.uniforms['tDepthBuste'].value = busteTarget.depthTexture;
-  finalBlendPass.uniforms['tDepthWords'].value = wordsTarget.depthTexture;
+  finalBlendPass.uniforms['tWords'].value       = wordsTarget.texture;
+  finalBlendPass.uniforms['tDepthBuste'].value  = busteTarget.depthTexture;
+  finalBlendPass.uniforms['tDepthWords'].value  = wordsTarget.depthTexture;
+  finalBlendPass.uniforms['tDepthPanels'].value = panelsTarget.depthTexture;
   composer.render();
 }
 
