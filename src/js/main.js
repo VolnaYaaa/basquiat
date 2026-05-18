@@ -437,7 +437,7 @@ works.forEach(({ src, angle }) => {
 
     const x = cylinderRadius * Math.cos(angle);
     const z = cylinderRadius * Math.sin(angle);
-    panel.position.set(x, 1.35, z);
+    panel.position.set(x, 1.2, z);
     panel.rotation.y = Math.PI / 2 - angle;
 
     panelMeshes.push(panel);
