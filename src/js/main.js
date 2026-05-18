@@ -298,10 +298,30 @@ composer.addPass(finalBlendPass);
 
 const mouse2D = new THREE.Vector2(-999, -999);
 
+// ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────────────────
+
+document.body.style.cursor = 'none';
+
+const cursorEl = document.createElement('div');
+cursorEl.style.cssText = `
+  position: fixed;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+`;
+const cursorImg = document.createElement('img');
+cursorImg.src = '/src/img/cursor.svg';
+cursorImg.style.width = '40px';
+cursorEl.appendChild(cursorImg);
+document.body.appendChild(cursorEl);
+
 window.addEventListener('mousemove', (e) => {
   mouse2D.x =  (e.clientX / window.innerWidth)  * 2 - 1;
   mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
   maskPass.uniforms['uMouse'].value.set(e.clientX, window.innerHeight - e.clientY);
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top  = e.clientY + 'px';
 });
 
 // ─── SCÈNE BUSTE (isolée pour le depth) ───────────────────────────────────────
