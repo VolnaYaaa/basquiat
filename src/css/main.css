@@ -59,10 +59,14 @@ header {
   z-index: 10;
   display: flex;
   gap: 10px;
-  padding: 20px;
+  padding: 30px 60px;
+  position: fixed;
+  z-index: 200;
+  display: block;
 }
 
 header img {
+
   max-width: 50px;
 }
 

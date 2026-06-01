@@ -23,32 +23,29 @@
   color: #fff;
   width: 100%;
   height: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 30px 100px;
+  padding: 30px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  grid-template-rows: auto;
 }
 
 .popup-close {
-  position: absolute;
   padding: 0 1px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 10px;
-  top: 16px;
-  left: 0px;
   background: #fff;
   border: none;
   color: #000;
   font-size: 2rem;
-  cursor: pointer;
+  grid-row: 1fr;
+  grid-column: 1 / 2;
+  height: 40px;
+  width: 100px;
 }
+
 .popup-content {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr 2fr;
-  justify-content: start;
+ display: grid;
+ grid-column: 2 / 4;
+ grid-row: 2;
 }
 
 .popup-title {
@@ -58,17 +55,18 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #000;
-  grid-column: 2/3;
-  display: flex;
-  justify-content: flex-end;
   padding-right: 60px;
+  grid-column: 2 / 2;
+  grid-row: 1 / 1;
 }
 
 .popup-body {
   font-size: 1.618rem;
   line-height: 1.4;
   color: #000;
-  grid-column: 3/3;
+  font-family: "IBM Plex Mono", monospace;
+  grid-column: 3 / 4;
+  grid-row: 1 / 1;
 }
 .scroll {
   display: flex;
@@ -76,8 +74,10 @@
   align-items: end;
   gap: 20px;
   margin-top: 40px;
-  grid-column: 3/3;
+  grid-column: 2 / 3;
+  grid-row: 3 / 4;
   color: #6479A1;
+  height: auto;
 }
 
 .scroll img {
@@ -90,10 +90,15 @@
   text-decoration-line: line-through;
 }
 
+.gallery-content {
+  display: grid;
+  border: 1px solid #000;
+  height: auto;
+  justify-content: start;
+  grid-row: 4/4;
+}
 
-.swiper {
-  margin-top: 60px;
-  flex-grow: 1;
-  min-height: 0;
-  overflow: hidden;
+.gallery img {
+  width: 100%;
+  height: auto;
 }
