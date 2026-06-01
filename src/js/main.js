@@ -13,6 +13,10 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import floorTexUrl    from 'url:../img/wall_b.png';
+import wallLeftTexUrl from 'url:../img/wall_l.png';
+import wallRightTexUrl from 'url:../img/wall_r.png';
+import ceilTexUrl     from 'url:../img/wall_top.png';
 
 
 const scene = new THREE.Scene();
@@ -302,10 +306,78 @@ const finalBlendPass = new ShaderPass(FinalBlendShader);
 finalBlendPass.renderToScreen = true;
 composer.addPass(finalBlendPass);
 
+// ─── SCÈNE PAROIS ────────────────────────────────────────────────────────────
 
-const mouse2D = new THREE.Vector2(-999, -999);
+// ─── SCÈNE PAROIS ────────────────────────────────────────────────────────────
+
+const textureLoaderRoom = new THREE.TextureLoader();
+
+const floorTex     = textureLoaderRoom.load(floorTexUrl);
+const wallLeftTex  = textureLoaderRoom.load(wallLeftTexUrl);
+const wallRightTex = textureLoaderRoom.load(wallRightTexUrl);
+const ceilTex      = textureLoaderRoom.load(ceilTexUrl);
+
+floorTex.colorSpace     = THREE.SRGBColorSpace;
+wallLeftTex.colorSpace  = THREE.SRGBColorSpace;
+wallRightTex.colorSpace = THREE.SRGBColorSpace;
+ceilTex.colorSpace      = THREE.SRGBColorSpace;
+
+const W = 30;
+const D = 30;
+const H = 14;
+
+const room = new THREE.Group();
+
+// Sol
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(W, D),
+  new THREE.MeshBasicMaterial({ map: floorTex })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.set(0, -H / 2, 0);
+room.add(floor);
+
+// Plafond
+const ceil = new THREE.Mesh(
+  new THREE.PlaneGeometry(W, D),
+  new THREE.MeshBasicMaterial({ map: ceilTex })
+);
+ceil.rotation.x = Math.PI / 2;
+ceil.position.set(0, H / 2, 0);
+room.add(ceil);
+
+// Mur gauche — face intérieure vers +X
+const wallLeft = new THREE.Mesh(
+  new THREE.PlaneGeometry(D, H),
+  new THREE.MeshBasicMaterial({ map: wallLeftTex })
+);
+wallLeft.rotation.y = Math.PI / 2;
+wallLeft.position.set(-W / 2, 0, 0);
+room.add(wallLeft);
+
+// Mur droit — face intérieure vers -X
+const wallRight = new THREE.Mesh(
+  new THREE.PlaneGeometry(D, H),
+  new THREE.MeshBasicMaterial({ map: wallRightTex })
+);
+wallRight.rotation.y = -Math.PI / 2;
+wallRight.position.set(W / 2, 0, 0);
+room.add(wallRight);
+
+// Mur du fond — se rejoint avec wallRight au coin (W/2, y, -D/2)
+const wallBack = new THREE.Mesh(
+  new THREE.PlaneGeometry(W, H),
+  new THREE.MeshBasicMaterial({ map: wallLeftTex })
+);
+wallBack.rotation.y = Math.PI;
+wallBack.position.set(0, 0, -D / 2);
+room.add(wallBack);
+
+scene.add(room);
 
 // ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────────────────
+
+const mouse2D = new THREE.Vector2(-999, -999);
 
 document.body.style.cursor = 'none';
 
@@ -371,6 +443,7 @@ loader.load(
     const maxDim = Math.max(size.x, size.y, size.z);
     camera.position.set(0, maxDim * 0.2, maxDim * 1.4);
     controls.update();
+    room.position.y = camera.position.y;
 
     // Clone dans sceneBuste pour capturer son depth isolément
     const busteClone = gltf.scene.clone(true);
