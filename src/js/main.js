@@ -1,3 +1,4 @@
+import './articles.js';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -692,6 +693,7 @@ function buildWordCloud() {
     sprite.rotation.y = Math.PI / 2 - theta;
     sprite.position.set(x, y, z);
 
+    sprite.userData.word        = word;
     sprite.userData.baseY       = y;
     sprite.userData.floatSpeed  = 0.9;
     sprite.userData.floatAmpY   = 0.04 + Math.random() * 0.04;
@@ -705,6 +707,12 @@ function buildWordCloud() {
 document.fonts.load('100px BASQUIAT').then(() => buildWordCloud()).catch(() => buildWordCloud());
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
+
+window.addEventListener('click', () => {
+  if (hoveredWord) {
+    window.dispatchEvent(new CustomEvent('word-click', { detail: { word: hoveredWord.userData.word } }));
+  }
+});
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
