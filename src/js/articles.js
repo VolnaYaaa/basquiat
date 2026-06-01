@@ -52,10 +52,6 @@
 //   'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
 //   'Music': [music1, music2, music3, music4, music5],
 // };
-
-const popup = document.getElementById('article-popup');
-const closeBtn = document.getElementById('popup-close');
-
 // const swiper = new Swiper('.swiper', {
 //   direction: 'horizontal',
 //   navigation: {
@@ -67,15 +63,19 @@ const closeBtn = document.getElementById('popup-close');
 //     clickable: true,
 //   },
 // });
-
-window.addEventListener('word-click', (e) => {
-  const word = e.detail.word;
-
   // document.querySelector('.swiper-wrapper').innerHTML = images
   //   .map(src => `<div class="swiper-slide"><img src="${src}" /></div>`)
   //   .join('');
 
   // swiper.update();
+
+const popup = document.getElementById('article-popup');
+const closeBtn = document.getElementById('popup-close');
+
+
+
+window.addEventListener('word-click', (e) => {
+  const word = e.detail.word;
 
   document.querySelector('.popup-title').textContent = word;
   popup.classList.add('active');
