@@ -56,13 +56,10 @@ span, a {
 header {
   color: white;
   position: fixed;
-  width: fit-content;
   z-index: 10;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 2vh;
-  background: transparent;
+  gap: 10px;
+  padding: 20px;
 }
 
 header img {
@@ -70,5 +67,5 @@ header img {
 }
 
 h3 {
-  font-size: 30px;
+  font-size: 25px;
 }
