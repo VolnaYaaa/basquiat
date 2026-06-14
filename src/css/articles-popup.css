@@ -2,13 +2,11 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 100;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  overflow-y: auto;
 }
 
 .popup-overlay.active {
@@ -22,11 +20,11 @@
   background-size: cover;
   color: #fff;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   padding: 30px 60px;
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr;
-  grid-template-rows: auto;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  grid-template-rows: auto auto minmax(400px, 60vh);
 }
 
 .popup-close {
@@ -36,16 +34,14 @@
   border: none;
   color: #000;
   font-size: 2rem;
-  grid-row: 1fr;
-  grid-column: 1 / 2;
   height: 40px;
   width: 100px;
+  grid-area: 1 / 1 / 2 / 2;
+  align-self: end;
 }
 
-.popup-content {
- display: grid;
- grid-column: 2 / 4;
- grid-row: 2;
+.popup-title-wrap{
+  grid-area: 2 / 2 / 3 / 3;
 }
 
 .popup-title {
@@ -55,9 +51,11 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #000;
-  padding-right: 60px;
-  grid-column: 2 / 2;
-  grid-row: 1 / 1;
+}
+
+.popup-description {
+  grid-area: 2 / 3 / 3 / 4; 
+  padding-bottom: 100px;
 }
 
 .popup-body {
@@ -65,8 +63,6 @@
   line-height: 1.4;
   color: #000;
   font-family: "IBM Plex Mono", monospace;
-  grid-column: 3 / 4;
-  grid-row: 1 / 1;
 }
 .scroll {
   display: flex;
@@ -74,8 +70,6 @@
   align-items: end;
   gap: 20px;
   margin-top: 40px;
-  grid-column: 2 / 3;
-  grid-row: 3 / 4;
   color: #6479A1;
   height: auto;
 }
@@ -91,11 +85,91 @@
 }
 
 .gallery-content {
-  display: grid;
+  grid-area: 3 / 1 / 4 / 4;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.popup-info-panel {
+  display: none;
   border: 1px solid #000;
-  height: auto;
-  justify-content: start;
-  grid-row: 4/4;
+}
+
+.popup-info-panel.visible {
+  display: grid;
+}
+
+.slider-viewport {
+  flex: 1;
+  overflow: hidden;
+}
+
+.slider-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.35s ease;
+}
+
+.slider-slide {
+  position: relative;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.slider-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.slide-info-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 8px;
+}
+
+.slider-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.slider-prev,
+.slider-next {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.slider-prev:disabled,
+.slider-next:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.slider-progress {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 2px;
+  background: #ccc;
+}
+
+.progress-bar.active {
+  background: #000;
 }
 
 .gallery img {

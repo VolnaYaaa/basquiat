@@ -61,9 +61,18 @@ import music3 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-3.png
 import music4 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-4.png';
 import music5 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-5.png';
 
-
-
-
+const articleImages = {
+  'Anatomy': [anatomy1, anatomy2, anatomy3, anatomy4, anatomy5, anatomy6, anatomy7, anatomy8, anatomy9, anatomy10],
+  'Jawbone Of An Ass': [jawbone1, jawbone2, jawbone3],
+  'Hollywood Africans': [hollywood1, hollywood2],
+  'The Figure Portfolio': [figure1, figure2, figure3, figure4, figure5],
+  'Superhero Portfolio': [superhero1, superhero2, superhero3, superhero4],
+  'Basquiat as musician': [music1, music2, music3, music4, music5],
+  'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
+  'Enfants': [],
+  'Andy Warhol': [],
+  'SAMO': [],
+};
 
 const articles = {
   'Anatomy': `Anatomy, Jean-Michel Basquiat, 1982. The artist's first print portfolio — eighteen silkscreens, each in an edition of 18 (plus 7 APs), 76.2 × 56.5 cm. Conceived in the basement studio of the Annina Nosei Gallery after his debut solo show. White anatomical sketches — skulls, femurs, scapulae, pelvises — glow against solid black like x-rays, each part labeled as in a medical textbook. The clinical restraint contrasts sharply with his chaotic, graffiti-rooted work. Inspired by Gray's Anatomy, a childhood gift.`,
@@ -78,23 +87,124 @@ const articles = {
   'SAMO': `SAMO© was a graffiti tag that appeared across Lower Manhattan from 1978 to 1980, a joint project by high-school friends Jean-Michel Basquiat and Al Diaz. Short for "same old shit," it began as a mock "religion" and a "JESUS SAVES"-style campaign: the tag, with its wry copyright symbol, accompanied cryptic, satirical phrases needling consumerism, religion, and the art world. Basquiat ended it by scrawling "SAMO© IS DEAD," then went solo. The text-and-image blend of SAMO© carried into his painting.`,
 };
 
+// DOM refs
+const infoPanel = document.getElementById('popup-info-panel');
+const titleEl   = document.getElementById('popup-info-title');
+const bodyEl    = document.getElementById('popup-info-body');
+const track     = document.getElementById('slider-track');
+const progressEl = document.getElementById('slider-progress');
+const prevBtn   = document.getElementById('slider-prev');
+const nextBtn   = document.getElementById('slider-next');
+
 const popup = document.getElementById('article-popup');
 const closeBtn = document.getElementById('popup-close');
 
-window.addEventListener('word-click', (e) => {
-  const word = e.detail.word;
+let current = 0;
+let total = 0;
+let slideWidth = 0;
+
+function calcSlideWidth() {
+  const viewport = popup.querySelector('.slider-viewport');
+  const peek = total > 1 ? parseInt(
+    getComputedStyle(document.documentElement).getPropertyValue('--slider-peek')
+  ) || 220 : 0;
+  return viewport.offsetWidth - peek;
+}
+
+function updateSlider() {
+  track.style.transform = `translateX(-${current * slideWidth}px)`;
+
+  progressEl.querySelectorAll('.progress-bar').forEach((bar, i) => {
+    bar.classList.toggle('active', i === current);
+  });
+
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current >= total - 1;
+}
+
+function buildSlider(images) {
+  track.innerHTML = images.map((src, i) =>
+    `<div class="slider-slide">
+      <button class="slide-info-btn" type="button">¿ INFO ?</button>
+      <img src="${src}" alt="slide ${i + 1}">
+    </div>`
+  ).join('');
+
+  track.querySelectorAll('.slide-info-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      infoPanel.classList.toggle('visible');
+    });
+  });
+}
+
+function buildProgress() {
+  progressEl.innerHTML = Array.from({ length: total }, (_, i) =>
+    `<div class="progress-bar${i === 0 ? ' active' : ''}"></div>`
+  ).join('');
+}
+
+function openPopup(word) {
+  const images = articleImages[word] || [];
+  total = images.length;
+  current = 0;
 
   document.querySelector('.popup-title').textContent = word;
-  popup.classList.add('active');
-
   document.querySelector('.popup-body').textContent = articles[word] || '';
-  
-  document.querySelector('.tablo-img').src = `../../public/imgs/articles/${word.toLowerCase().replace(/\s/g, '_')}/${word.toLowerCase().replace(/\s/g, '_')}.png`;
-  
+  infoPanel.classList.remove('visible');
+
+  if (total > 0) {
+    buildSlider(images);
+    buildProgress();
+    requestAnimationFrame(() => {
+      slideWidth = calcSlideWidth();
+      track.querySelectorAll('.slider-slide').forEach(slide => {
+        slide.style.minWidth = slideWidth + 'px';
+      });
+      updateSlider();
+    });
+  } else {
+    track.innerHTML = '';
+    progressEl.innerHTML = '';
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+  }
+
+  popup.classList.add('active');
+}
+
+prevBtn.addEventListener('click', () => {
+  if (current > 0) { current--; updateSlider(); }
 });
 
-closeBtn.addEventListener('click', () => popup.classList.remove('active'));
+nextBtn.addEventListener('click', () => {
+  if (current < total - 1) { current++; updateSlider(); }
+});
+
+closeBtn.addEventListener('click', () => {
+  popup.classList.remove('active');
+  infoPanel.classList.remove('visible');
+});
 
 popup.addEventListener('click', (e) => {
-  if (e.target === popup) popup.classList.remove('active');
+  if (e.target === popup) {
+    popup.classList.remove('active');
+    infoPanel.classList.remove('visible');
+  }
 });
+
+window.addEventListener('resize', () => {
+  if (!popup.classList.contains('active') || total === 0) return;
+  slideWidth = calcSlideWidth();
+  track.querySelectorAll('.slider-slide').forEach(slide => {
+    slide.style.minWidth = slideWidth + 'px';
+  });
+  track.style.transition = 'none';
+  updateSlider();
+  requestAnimationFrame(() => {
+    track.style.transition = '';
+  });
+});
+
+window.addEventListener('word-click', (e) => openPopup(e.detail.word));
+
