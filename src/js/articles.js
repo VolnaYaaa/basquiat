@@ -1,3 +1,165 @@
+const FloatingPopup = (() => {
+  const overlay = document.getElementById('floating-overlay');
+  const canvas = document.getElementById('floating-canvas');
+  const gl = canvas.getContext('webgl');
+
+  const VERT = `
+    attribute vec2 a_pos;
+    attribute vec2 a_uv;
+    uniform float uTime;
+    uniform float uProgress;
+    uniform float uScaleVel;
+    uniform vec2 uScale;
+    varying vec2 vUv;
+    varying float vElev;
+
+    void main() {
+      vec4 v = vec4(a_pos * uScale, 0.0, 1.0);
+      v.z -= uScaleVel * pow(distance(a_uv.x, 0.5) * 1.65, 2.0);
+      v.z -= uScaleVel * pow(distance(a_uv.y, 0.5) * 1.65, 2.0);
+      float wave =
+        sin(v.x * 2.8 + uTime * 1.2) * 0.5 +
+        cos(v.y * 2.8 + uTime * 1.2) * 0.5;
+      v.z += wave * uProgress * 0.07;
+      vElev = v.z;
+      vUv   = a_uv;
+      gl_Position = vec4(v.xyz, 1.0 - v.z * 2.0);
+    }
+  `;
+
+  const FRAG = `
+    precision highp float;
+    uniform sampler2D uTex;
+    uniform float uProgress;
+    varying vec2 vUv;
+    varying float vElev;
+
+    void main() {
+      gl_FragColor = texture2D(uTex, vUv);
+      gl_FragColor.rgb += vElev * max(1.0 - uProgress, 0.22);
+      gl_FragColor.rgb -= (1.0 - vUv.y) * 0.06 * uProgress;
+    }
+  `;
+
+  function makeShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, makeShader(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, makeShader(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const SEG = 50;
+  const pos = [], uv = [], idx = [];
+  for (let y = 0; y <= SEG; y++) {
+    for (let x = 0; x <= SEG; x++) {
+      const u = x / SEG, v = y / SEG;
+      pos.push((u * 2 - 1) * 0.72, (v * 2 - 1) * -0.72);
+      uv.push(u, 1 - v);
+    }
+  }
+  for (let y = 0; y < SEG; y++) {
+    for (let x = 0; x < SEG; x++) {
+      const i = y * (SEG + 1) + x;
+      idx.push(i, i + 1, i + SEG + 1, i + 1, i + SEG + 2, i + SEG + 1);
+    }
+  }
+
+  function bindBuf(data, attr, size) {
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, attr);
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+  }
+  bindBuf(pos, 'a_pos', 2);
+  bindBuf(uv,  'a_uv',  2);
+
+  const ibuf = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+
+  const uTimeLoc   = gl.getUniformLocation(prog, 'uTime');
+  const uProgLoc   = gl.getUniformLocation(prog, 'uProgress');
+  const uScaleVLoc = gl.getUniformLocation(prog, 'uScaleVel');
+  const uScaleLoc  = gl.getUniformLocation(prog, 'uScale');
+  gl.uniform2f(uScaleLoc, 1.0, 1.0);
+
+  const tex = gl.createTexture();
+
+  function loadImage(src, cb) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+      const imgAspect    = img.naturalWidth / img.naturalHeight;
+      const canvasAspect = canvas.width / canvas.height;
+      const sx = imgAspect > canvasAspect ? 1.0 : imgAspect / canvasAspect;
+      const sy = imgAspect > canvasAspect ? canvasAspect / imgAspect : 1.0;
+      gl.uniform2f(uScaleLoc, sx, sy);
+
+      if (cb) cb();
+    };
+    img.src = src;
+  }
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  let progress = 0, targetProgress = 0;
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function loop(t) {
+    progress = lerp(progress, targetProgress, 0.045);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    const p = Math.min(progress, 1.0);
+    gl.uniform1f(uTimeLoc, t / 1000);
+    gl.uniform1f(uProgLoc, p);
+    gl.uniform1f(uScaleVLoc, (1.0 - p) * 0.4);
+    gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target === canvas) close();
+  });
+
+  function open(src) {
+    loadImage(src, () => {
+      overlay.classList.add('is-open');
+      targetProgress = 1;
+    });
+  }
+
+  function close() {
+    targetProgress = 0;
+    setTimeout(() => overlay.classList.remove('is-open'), 600);
+  }
+
+  return { open, close };
+})();
+
 // import Swiper from 'swiper/swiper-bundle.mjs';
 // import 'swiper/swiper-bundle.css';
 // const swiper = new Swiper('.swiper', {
@@ -125,7 +287,6 @@ function updateSlider() {
 function buildSlider(images) {
   track.innerHTML = images.map((src, i) =>
     `<div class="slider-slide">
-      <button class="slide-info-btn" type="button">¿ INFO ?</button>
       <img src="${src}" alt="slide ${i + 1}">
     </div>`
   ).join('');
@@ -134,6 +295,14 @@ function buildSlider(images) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       infoPanel.classList.toggle('visible');
+    });
+  });
+
+  track.querySelectorAll('.slider-slide img').forEach((img, i) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      FloatingPopup.open(images[i]);
     });
   });
 }
