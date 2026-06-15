@@ -19,11 +19,6 @@ import wallLeftTexUrl  from 'url:../img/wall_l.png';
 import wallRightTexUrl from 'url:../img/wall_r.png';
 import ceilTexUrl      from 'url:../img/wall_top.png';
 
-// ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────────────────
-
-console.log('cursor2Url:', cursor2Url);
-document.body.style.cursor = `url('${cursor2Url}') 50 50, auto`;
-
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -364,7 +359,9 @@ const mouse2D = new THREE.Vector2(-999, -999);
 
 // ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────────────────
 
-document.body.style.cursor = 'none';
+const cursorStyle = document.createElement('style');
+cursorStyle.textContent = `* { cursor: none !important; }`;
+document.head.appendChild(cursorStyle);
 
 const cursorEl = document.createElement('div');
 cursorEl.style.cssText = `
@@ -376,7 +373,7 @@ cursorEl.style.cssText = `
 `;
 const cursorImg = document.createElement('img');
 cursorImg.src = cursorUrl;
-cursorImg.style.width = '40px';
+cursorImg.style.width = '50px';
 cursorEl.appendChild(cursorImg);
 document.body.appendChild(cursorEl);
 

@@ -121,3 +121,7 @@ h3 {
   text-transform: lowercase;
   line-height: 1;
 }
+
+body {
+  cursor: none;
+}
