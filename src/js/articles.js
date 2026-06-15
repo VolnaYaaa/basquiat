@@ -196,8 +196,16 @@ import jawbone1 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_o
 import jawbone2 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_of_an_ass.png';
 import jawbone3 from 'url:../../public/imgs/articles/jawbone_of_an_ass/image_15.png';
 
-import hollywood1 from 'url:../../public/imgs/articles/hollywood_africans/image_15.png';
-import hollywood2 from 'url:../../public/imgs/articles/hollywood_africans/image_16.png';
+import hollywood1 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_1.png';
+import hollywood2 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_2.png';
+import hollywood3 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_3.png';
+import hollywood4 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_4.png';
+import hollywood5 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_5.png';
+import hollywood6 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_6.png';
+import hollywood7 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_7.png';
+import hollywood8 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_8.jpg';
+import hollywood9 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_9.png';
+
 
 import figure1 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_i.png';
 import figure2 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_ii.png';
@@ -223,17 +231,60 @@ import music3 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-3.png
 import music4 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-4.png';
 import music5 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-5.png';
 
+import enfance1 from 'url:../../public/imgs/articles/enfance/enfance_01.png';
+import enfance2 from 'url:../../public/imgs/articles/enfance/enfance_02.png';
+import enfance3 from 'url:../../public/imgs/articles/enfance/enfance_03.png';
+import enfance4 from 'url:../../public/imgs/articles/enfance/enfance_04.png';
+
+import warhol1  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_1.webp';
+import warhol2  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_2.webp';
+import warhol3  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_3.jpg';
+import warhol4  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_4.webp';
+import warhol5  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_5.avif';
+import warhol6  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_6.jpg';
+import warhol7  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_7.jpg';
+import warhol8  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_8.jpg';
+import warhol9  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_9.avif';
+import warhol10 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_10.jpg';
+import warhol11 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_11.jpg';
+import warhol12 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_12.avif';
+import warhol13 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_14.jpg';
+import warhol14 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_15.avif';
+import warhol15 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_16.avif';
+import warhol16 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_17.avif';
+import warhol17 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_18.avif';
+import warhol18 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_19.png';
+import warhol19 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_20.png';
+import warhol20 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_21.png';
+import warhol21 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_22.png';
+import warhol22 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_25.png';
+import warhol23 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_26.jpeg';
+import warhol24 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_1.png';
+import warhol25 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_2.png';
+import warhol26 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_3.jpeg';
+import warhol27 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_4.jpeg';
+
+import samo1 from 'url:../../public/imgs/articles/samo/samo_1.png';
+import samo2 from 'url:../../public/imgs/articles/samo/samo_2.png';
+import samo3 from 'url:../../public/imgs/articles/samo/samo_3.png';
+import samo4 from 'url:../../public/imgs/articles/samo/samo_4.webp';
+import samo5 from 'url:../../public/imgs/articles/samo/samo_5.png';
+
 const articleImages = {
   'Anatomy': [anatomy1, anatomy2, anatomy3, anatomy4, anatomy5, anatomy6, anatomy7, anatomy8, anatomy9, anatomy10],
   'Jawbone Of An Ass': [jawbone1, jawbone2, jawbone3],
-  'Hollywood Africans': [hollywood1, hollywood2],
+  'Hollywood Africans': [hollywood1, hollywood2, hollywood3, hollywood4, hollywood5, hollywood6, hollywood7, hollywood8, hollywood9],
   'The Figure Portfolio': [figure1, figure2, figure3, figure4, figure5],
   'Superhero Portfolio': [superhero1, superhero2, superhero3, superhero4],
   'Basquiat as musician': [music1, music2, music3, music4, music5],
   'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
-  'Enfants': [],
-  'Andy Warhol': [],
-  'SAMO': [],
+  'Enfants': [enfance1, enfance2, enfance3, enfance4],
+  'Andy Warhol': [
+    warhol1, warhol2, warhol3, warhol4, warhol5, warhol6, warhol7, warhol8, warhol9, warhol10,
+    warhol11, warhol12, warhol13, warhol14, warhol15, warhol16, warhol17, warhol18, warhol19,
+    warhol20, warhol21, warhol22, warhol23, warhol24, warhol25, warhol26, warhol27
+  ],
+  'SAMO': [samo1, samo2, samo3, samo4, samo5],
 };
 
 const articles = {
