@@ -65,9 +65,10 @@
   margin: 0 0 16px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #fff;
-  mix-blend-mode: difference;
+  color: #000;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.50);
 }
+
 
 .popup-description {
   grid-area: 2 / 3 / 3 / 4; 
@@ -78,6 +79,8 @@
   line-height: 1.4;
   color: #000;
   font-family: "IBM Plex Mono", monospace;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.50);
+
 }
 
 

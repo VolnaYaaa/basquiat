@@ -15,7 +15,7 @@ smokeCamera.position.y = -650;
 const smokeRenderer = new THREE.WebGLRenderer({ antialias: false, canvas, alpha: true, powerPreference: 'low-power' });
 smokeRenderer.setPixelRatio(1);
 smokeRenderer.setSize(popup.offsetWidth, popup.offsetHeight);
-canvas.style.mixBlendMode = 'multiply';
+canvas.style.mixBlendMode = 'exclusion';
 
 const light = new THREE.HemisphereLight(0xd6e6ff, 0xa38c08, 1);
 smokeScene.add(light);
@@ -25,8 +25,8 @@ const smokeGeo = new THREE.PlaneGeometry(300, 300);
 const smokeMaterial = new THREE.MeshLambertMaterial({
   map: tex,
   color: 0x334466,
-  emissive: 0x111111,
-  opacity: 0.1,
+  emissive: 0x343434,
+  opacity: 0.3,
   transparent: true,
   depthWrite: false,
   side: THREE.DoubleSide,

@@ -276,7 +276,7 @@ const articleImages = {
   'Hollywood Africans': [hollywood1, hollywood2, hollywood3, hollywood4, hollywood5, hollywood6, hollywood7, hollywood8, hollywood9],
   'The Figure Portfolio': [figure1, figure2, figure3, figure4, figure5],
   'Superhero Portfolio': [superhero1, superhero2, superhero3, superhero4],
-  'Basquiat as a musician': [music1, music2, music3, music4, music5],
+  'Basquiat as musician': [music1, music2, music3, music4, music5],
   'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
   'Enfance': [enfance1, enfance2, enfance3, enfance4],
   'Andy Warhol': [
@@ -293,7 +293,7 @@ const articles = {
   'Hollywood Africans': `Hollywood Africans, Jean-Michel Basquiat, 1983. Acrylic and oil stick on canvas, approx. 210 × 210 cm, Whitney Museum. Against a golden-yellow ground, a group self-portrait of Basquiat with his fellow artists Toxic and Rammellzee, painted during a trip to Los Angeles. Obscured words — "Tobacco," "Sugar Cane," "Gangsterism," "What is Bwana?" — gather the stereotypes imposed on African American actors in Hollywood. A pointed critique of racial clichés in film and the commodification of Black culture.`,
   'The Figure Portfolio': `The Figure Portfolio (1982/2023), Jean-Michel Basquiat. A series of five hand-pulled screenprints, published by Flatiron Editions and authenticated by the artist's estate; edition of 85, 122 × 81 cm each. A posthumous release of 1980s prints in a Neo-Expressionist and Primitivist vein. Figures intertwine with abstract symbols and text, speaking to identity, segregation, and isolation. A deep blue echoes the Daros Suite, set off by red, orange, and yellow; among the figures is a female character rare in Basquiat's work.`,
   'Superhero Portfolio': `Superhero Portfolio (1982–87/2022), Jean-Michel Basquiat. A set of four hand-pulled screenprints (Riddle Me This, A Panel of Experts, Piano Lesson, Flash In Naples), released by the artist's estate in an edition of 85, 101.6 × 101.6 cm each. Basquiat reimagines the language of comics: mask-like heads, skeletal bodies, repeated laughter — "HA," "HEE," "HO." Acidic yellows, reds, and blues on scraped grounds. His superheroes appear vulnerable and uneasy — a sharp meditation on power, identity, and myth-making.`,
-  'Basquiat as a musician': `Jean-Michel Basquiat, musician. In 1979 the artist co-founded the experimental band Gray with Michael Holman, naming it after Gray's Anatomy — the textbook that also fed his painting. Part of the No Wave movement, Gray played deliberately dissonant, industrial, improvised music; by the band's rules, members weren't supposed to know how to play. Basquiat took up clarinet, guitar, and the Wasp synthesizer, performing at CBGB, the Mudd Club, and Hurrah's. After leaving the band in 1981 to focus on art, he also worked as a DJ at the club AREA.`,
+  'Basquiat as musician': `Jean-Michel Basquiat, musician. In 1979 the artist co-founded the experimental band Gray with Michael Holman, naming it after Gray's Anatomy — the textbook that also fed his painting. Part of the No Wave movement, Gray played deliberately dissonant, industrial, improvised music; by the band's rules, members weren't supposed to know how to play. Basquiat took up clarinet, guitar, and the Wasp synthesizer, performing at CBGB, the Mudd Club, and Hurrah's. After leaving the band in 1981 to focus on art, he also worked as a DJ at the club AREA.`,
   'Daros Suite': `Daros Suite, Jean-Michel Basquiat. A series of prints after The Daros Suite of Thirty-Two Drawings (1983) — thirty-two drawings housed in the Daros Collection, Zurich. Posthumous estate screenprints in an edition of 50 (including the set Leeches, Ascent, Olympic, Liberty), on Somerset paper. A chaotic, almost childlike hand conceals a controlled intent. Themes range across sport, "Black excellence," capitalism, and anarchy; anatomical motifs recur throughout — bones, skulls, feet. A sharp social commentary in the artist's signature Neo-Expressionist language.`,
   'Enfance': `Jean-Michel Basquiat was born on December 22, 1960, in Brooklyn, to a Haitian father and a mother of Puerto Rican descent; by age 11 he was fluent in French, Spanish, and English. His mother, Matilde, nurtured his talent, taking him to New York's museums. At eight he was hit by a car; while recovering, she gave him Gray's Anatomy — a wellspring of his future imagery. His childhood was shadowed by financial hardship, his parents' divorce, and his mother's mental illness. At 17, Basquiat dropped out and left home.`,
   'Andy Warhol': `In the late 1970s Basquiat first crossed paths with Warhol at a SoHo restaurant, selling him a handmade postcard. Their real meeting was arranged by dealer Bruno Bischofberger at a 1982 lunch: Basquiat took the Polaroid and returned two hours later with the still-wet Dos Cabezas. Friendship grew into collaboration (1983–85, ~160 works); on Basquiat's advice Warhol returned to hand-painting, while Basquiat deepened his use of silkscreen. Their 1985 joint show was panned by critics — reappraisal came only decades later.`,
@@ -373,12 +373,7 @@ function buildProgress() {
   });
 }
 
-let smokeLoaded = false;
 function openPopup(word) {
-  if (!smokeLoaded) {
-    smokeLoaded = true;
-    import('./smoke.js');
-  }
   const images = articleImages[word] || [];
   total = images.length;
   current = 0;
