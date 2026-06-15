@@ -363,6 +363,14 @@ function buildProgress() {
   progressEl.innerHTML = Array.from({ length: total }, (_, i) =>
     `<div class="progress-bar${i === 0 ? ' active' : ''}"></div>`
   ).join('');
+
+  progressEl.querySelectorAll('.progress-bar').forEach((bar, i) => {
+    bar.style.cursor = 'pointer';
+    bar.addEventListener('click', () => {
+      current = i;
+      updateSlider();
+    });
+  });
 }
 
 function openPopup(word) {
@@ -427,5 +435,8 @@ window.addEventListener('resize', () => {
   });
 });
 
-window.addEventListener('word-click', (e) => openPopup(e.detail.word));
+window.addEventListener('word-click', (e) => {
+  if (popup.classList.contains('active')) return;
+  openPopup(e.detail.word);
+});
 
