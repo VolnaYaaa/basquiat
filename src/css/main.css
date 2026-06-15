@@ -38,7 +38,7 @@ main{
 
 @font-face {
   font-family: 'BASQUIAT';
-  src: url('../../public/fonts/BASQUIAT.otf') format('opentype');
+  src: url('../../public/fonts/Basquiat-Regular.woff') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
