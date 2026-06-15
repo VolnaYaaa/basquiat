@@ -21,7 +21,7 @@ import ceilTexUrl      from 'url:../img/wall_top.png';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 6);
 
 const canvas = document.getElementById('bg-smoke');
@@ -422,6 +422,7 @@ sceneBuste.add(backLight2);
 
 let bustePrincipal = null; // Référence au buste principal
 let busteClone = null; // Référence au buste clone
+let busteBaseY = 0; // Position Y initiale du buste
 
 const loader = new GLTFLoader();
 
@@ -449,7 +450,7 @@ loader.load(
 
     const size   = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    camera.position.set(0, maxDim * 0.2, maxDim * 1.4);
+    camera.position.set(0, maxDim * 0.2, maxDim * 1.6);
     controls.update();
 
     // Synchronise la salle avec la position Y de la caméra
@@ -469,6 +470,8 @@ loader.load(
       }
     });
     sceneBuste.add(busteClone);
+
+    busteBaseY = gltf.scene.position.y;
   },
   (xhr) => console.log(`Chargement: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`),
   (error) => console.error('Erreur de chargement:', error)
@@ -868,6 +871,14 @@ function animate() {
     cursorImg.src = cursor2Url;
   } else {
     cursorImg.src = cursorUrl;
+  }
+
+  // Make bust float slightly
+  if (bustePrincipal) {
+    bustePrincipal.position.y = busteBaseY + Math.sin(t * 0.5) * 0.1;
+  }
+  if (busteClone) {
+    busteClone.position.y = busteBaseY + Math.sin(t * 0.5) * 0.1;
   }
 
   // Modifier l'opacité du buste lors du hover d'un article
