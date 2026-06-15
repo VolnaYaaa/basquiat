@@ -373,7 +373,12 @@ function buildProgress() {
   });
 }
 
+let smokeLoaded = false;
 function openPopup(word) {
+  if (!smokeLoaded) {
+    smokeLoaded = true;
+    import('./smoke.js');
+  }
   const images = articleImages[word] || [];
   total = images.length;
   current = 0;

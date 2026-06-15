@@ -37,19 +37,19 @@ main{
 }
 
 @font-face {
-  font-family: 'BASQUIAT-TITEL';
-  src: url('../../public/fonts/Basquiat-TITEL.otf') format('opentype');
+  font-family: 'BASQUIAT-TITLE';
+  src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
-h1, h2, h3, h4, h5, h6, p {
-  font-family: 'BASQUIAT-TITEL', sans-serif;
+h1, h2, h3, h4 {
+  font-family: 'BASQUIAT-TITLE', sans-serif;
 }
 
 @font-face {
   font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/Basquiat-WORD.woff') format('woff');
+  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -72,7 +72,7 @@ span, a {
 
 .article span,
 .article a {
-  font-family: 'BASQUIAT-TITEL', sans-serif;
+  font-family: 'BASQUIAT-TITLE', sans-serif;
 }
 
 header {

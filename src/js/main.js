@@ -769,13 +769,13 @@ let hoveredWord = null;
 let nonHoveredOpacity = 1;
 let targetNonHoveredOpacity = 1;
 
-const clock = new THREE.Clock();
+const startTime = performance.now();
 
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
-  const t = clock.getElapsedTime();
+  const t = (performance.now() - startTime) / 1000;
 
   // Smooth non-hovered opacity transition
   nonHoveredOpacity += (targetNonHoveredOpacity - nonHoveredOpacity) * 0.1;

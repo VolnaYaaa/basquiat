@@ -1,3 +1,12 @@
+#popup-smoke {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -23,6 +32,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1.5fr;
   grid-template-rows: auto auto minmax(400px, 40vh);
+  position: relative;
+  z-index: 1;
 }
 
 .popup-close {
@@ -48,7 +59,7 @@
 }
 
 .popup-title {
-  font-family: "Basquit-title", sans-serif;
+  font-family: 'BASQUIAT-TITLE', sans-serif;
   font-size: 6.159rem;
   margin: 0 0 16px;
   text-transform: uppercase;
@@ -162,20 +173,28 @@
   width: 24px;
   height: 36px;
   -webkit-mask-image: url(../../public/imgs/icons/icon=score.svg);
+  mask-image: url(../../public/imgs/icons/icon=score.svg);
   background-color: #000;
   -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   -webkit-mask-position: center;
+  mask-position: center;
   -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
 .progress-bar.active {
   width: 38px;
   height: 42px;
   -webkit-mask-image: url(../../public/imgs/icons/icon=selected.svg);
+  mask-image: url(../../public/imgs/icons/icon=selected.svg);
   background-color: #FFB60B;
   -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   -webkit-mask-position: center;
+  mask-position: center;
   -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
 .gallery img {
