@@ -43,8 +43,8 @@ main{
   font-style: normal;
   font-display: swap;
 }
-h1, h2, h3, h4 {
-  font-family: 'BASQUIAT-TITLE', sans-serif;
+h1, h2, h3, h4, p {
+  font-family: 'BASQUIAT-WORD', sans-serif;
 }
 
 @font-face {
@@ -60,19 +60,11 @@ h1, h2, h3, h4 {
   font-weight: 400;
   font-style: regular;
 }
-.article {
-  font-family: 'BASQUIAT', sans-serif;
-}
 
 span, a {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
   font-style: normal;
-}
-
-.article span,
-.article a {
-  font-family: 'BASQUIAT-TITLE', sans-serif;
 }
 
 header {
