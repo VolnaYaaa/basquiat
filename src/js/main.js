@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import busteUrl    from 'url:../../public/models/export2.glb';
 import cursorUrl   from 'url:../img/cursor.png';
+import cursor2Url  from 'url:../img/cursor2.png';
 import oeuvre1Url  from 'url:../img/oeuvre1.png';
 import oeuvre2Url  from 'url:../img/oeuvre2.png';
 import oeuvre3Url  from 'url:../img/oeuvre3.png';
@@ -18,10 +19,14 @@ import wallLeftTexUrl  from 'url:../img/wall_l.png';
 import wallRightTexUrl from 'url:../img/wall_r.png';
 import ceilTexUrl      from 'url:../img/wall_top.png';
 
+// ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────────────────
+
+console.log('cursor2Url:', cursor2Url);
+document.body.style.cursor = `url('${cursor2Url}') 50 50, auto`;
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 6);
 
 const canvas = document.getElementById('bg-smoke');
@@ -45,7 +50,7 @@ scene.add(backLight);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.zoomSpeed = 5;
+controls.zoomSpeed = 2;
 controls.dampingFactor = 0.05;
 
 // ─── RENDER TARGETS ───────────────────────────────────────────────────────────
@@ -375,12 +380,34 @@ cursorImg.style.width = '40px';
 cursorEl.appendChild(cursorImg);
 document.body.appendChild(cursorEl);
 
+function isClickable(element) {
+  if (!element) return false;
+  const clickableTags = ['A', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT'];
+  if (clickableTags.includes(element.tagName)) return true;
+  if (element.getAttribute('onclick')) return true;
+  if (element.getAttribute('role') === 'button') return true;
+  // Check parents for clickable elements
+  let parent = element.parentElement;
+  while (parent) {
+    if (clickableTags.includes(parent.tagName) || parent.getAttribute('onclick') || parent.getAttribute('role') === 'button') {
+      return true;
+    }
+    parent = parent.parentElement;
+  }
+  return false;
+}
+
+let isOverClickableElement = false;
+
 window.addEventListener('mousemove', (e) => {
   mouse2D.x =  (e.clientX / window.innerWidth)  * 2 - 1;
   mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
   maskPass.uniforms['uMouse'].value.set(e.clientX, window.innerHeight - e.clientY);
   cursorEl.style.left = e.clientX + 'px';
   cursorEl.style.top  = e.clientY + 'px';
+
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  isOverClickableElement = isClickable(target);
 });
 
 // ─── SCÈNE BUSTE (isolée pour le depth) ───────────────────────────────────────
@@ -396,11 +423,15 @@ const backLight2 = new THREE.DirectionalLight(0xffffff, 3);
 backLight2.position.set(-20, 0, -45);
 sceneBuste.add(backLight2);
 
+let bustePrincipal = null; // Référence au buste principal
+let busteClone = null; // Référence au buste clone
+
 const loader = new GLTFLoader();
 
 loader.load(
   busteUrl,
   (gltf) => {
+    bustePrincipal = gltf.scene; // Stocker la référence
     scene.add(gltf.scene);
 
     gltf.scene.traverse((child) => {
@@ -429,7 +460,7 @@ loader.load(
     room.position.y = camera.position.y;
     room.position.z = -D / 2 + camera.position.z + 4;
 
-    const busteClone = gltf.scene.clone(true);
+    busteClone = gltf.scene.clone(true);
     busteClone.position.copy(gltf.scene.position);
     busteClone.traverse((child) => {
       if (child.isMesh) {
@@ -596,7 +627,7 @@ function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false,
 function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
   const arcAngle = worldW / radius;
   const segH     = 2;
-  const positions = [], normals = [], uvs = [], indices = [];
+  const positions = [], positionsFlat = [], normals = [], uvs = [], indices = [];
 
   for (let j = 0; j <= segH; j++) {
     for (let i = 0; i <= segmentsW; i++) {
@@ -604,11 +635,20 @@ function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
       const v     = j / segH;
       const alpha = (u - 0.5) * arcAngle;
 
+      // Position courbe (cylindrique)
       positions.push(
         radius * Math.sin(alpha),
         (v - 0.5) * worldH,
         radius * (Math.cos(alpha) - 1),
       );
+
+      // Position plate (géométrie plane)
+      positionsFlat.push(
+        (u - 0.5) * worldW,
+        (v - 0.5) * worldH,
+        0,
+      );
+
       normals.push(-Math.sin(alpha), 0, Math.cos(alpha));
       uvs.push(u, v);
     }
@@ -625,9 +665,10 @@ function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
   }
 
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute('normal',   new THREE.Float32BufferAttribute(normals,   3));
-  geo.setAttribute('uv',       new THREE.Float32BufferAttribute(uvs,       2));
+  geo.setAttribute('position',      new THREE.Float32BufferAttribute(positions,      3));
+  geo.setAttribute('positionFlat',  new THREE.Float32BufferAttribute(positionsFlat,  3));
+  geo.setAttribute('normal',        new THREE.Float32BufferAttribute(normals,        3));
+  geo.setAttribute('uv',            new THREE.Float32BufferAttribute(uvs,            2));
   geo.setIndex(indices);
   return geo;
 }
@@ -641,20 +682,24 @@ function createWordSprite(text, radius) {
   const { texture: textureBW, aspect } = makeWordTexture(text, { color, fontSize, font, skew, grayscale: true });
   const { texture: textureHover }      = makeWordTexture(text, { color, fontSize, font, skew, strikethrough: true });
 
-  const worldH = 0.5 + Math.random() * 0.25;
+  const worldH = 0.45 + Math.random() * 0.15;
   const worldW = worldH * aspect;
 
   const geo = createCurvedPlaneGeometry(worldW, worldH, radius);
   const mat = new THREE.ShaderMaterial({
     uniforms: {
-      uMap:     { value: textureBW },
-      uOpacity: { value: 1.0 },
+      uMap:       { value: textureBW },
+      uOpacity:   { value: 1.0 },
+      uFlattenT:  { value: 0.0 },
     },
     vertexShader: `
+      attribute vec3 positionFlat;
+      uniform float uFlattenT;
       varying vec2 vUv;
       void main() {
         vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec3 pos = mix(position, positionFlat, uFlattenT);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `,
     fragmentShader: `
@@ -682,6 +727,9 @@ function createWordSprite(text, radius) {
   mesh.userData.worldH       = worldH;
   return mesh;
 }
+
+// Position cible quand un article est détaché (à droite du cylindre)
+const DETACHED_POS = { x: 4, z: 0 };
 
 function buildWordCloud() {
   const words = Array.from(
@@ -728,6 +776,8 @@ function buildWordCloud() {
     sprite.userData.floatSpeed  = 0.9;
     sprite.userData.floatAmpY   = 0.04 + Math.random() * 0.04;
     sprite.userData.floatOffset = Math.random() * Math.PI * 2;
+    sprite.userData.origPos     = { x: x, y: y, z: z };
+    sprite.userData.origRot     = { y: Math.PI / 2 - theta };
 
     placed.push({ theta, y, hw, hh });
     sceneWords.add(sprite);
@@ -764,6 +814,7 @@ window.addEventListener('resize', () => {
 
 const raycaster = new THREE.Raycaster();
 let hoveredWord = null;
+let detachedWord = null; // Mot actuellement détaché (reste détaché jusqu'au prochain hover)
 
 // Non-hovered articles opacity
 let nonHoveredOpacity = 1;
@@ -781,9 +832,23 @@ function animate() {
   nonHoveredOpacity += (targetNonHoveredOpacity - nonHoveredOpacity) * 0.1;
 
   sceneWords.children.forEach((obj) => {
-    const { baseY, floatSpeed, floatAmpY, floatOffset } = obj.userData;
+    const { baseY, floatSpeed, floatAmpY, floatOffset, origPos, origRot } = obj.userData;
     if (baseY === undefined) return;
+
+    const isDetached = obj === detachedWord;
+    const targetHoverT = isDetached ? 1.0 : 0.0;
+    obj.userData.hoverT = (obj.userData.hoverT ?? 0) + (targetHoverT - (obj.userData.hoverT ?? 0)) * 0.35;
+    const t_hover = obj.userData.hoverT;
+
+    // Position: stay at original position while flattening
+    obj.position.x = origPos.x;
+    obj.position.z = origPos.z;
     obj.position.y = baseY + Math.sin(t * floatSpeed + floatOffset) * floatAmpY;
+
+    // Rotation: interpolate from cylindrical to face camera
+    const dirToCam = new THREE.Vector3().subVectors(camera.position, obj.position);
+    const targetRotY = Math.atan2(dirToCam.x, dirToCam.z);
+    obj.rotation.y = origRot.y * (1 - t_hover) + targetRotY * t_hover;
   });
 
   raycaster.setFromCamera(mouse2D, camera);
@@ -796,8 +861,39 @@ function animate() {
     if (hit) {
       hit.material.uniforms.uMap.value = hit.userData.textureHover;
       targetNonHoveredOpacity = 0.2;
+      detachedWord = hit; // Marquer le nouveau mot comme détaché
     }
     hoveredWord = hit;
+  }
+
+  // Update cursor based on hovered word or clickable element
+  if (hoveredWord || isOverClickableElement) {
+    cursorImg.src = cursor2Url;
+  } else {
+    cursorImg.src = cursorUrl;
+  }
+
+  // Modifier l'opacité du buste lors du hover d'un article
+  const targetBusteOpacity = hoveredWord ? 0 : 1.0;
+
+  if (bustePrincipal) {
+    bustePrincipal.traverse((child) => {
+      if (child.isMesh && child.material) {
+        child.material.opacity = targetBusteOpacity;
+        child.material.transparent = true;
+        child.material.depthWrite = !hoveredWord; // Désactiver depth write lors du hover
+      }
+    });
+  }
+
+  if (busteClone) {
+    busteClone.traverse((child) => {
+      if (child.isMesh && child.material) {
+        child.material.opacity = targetBusteOpacity;
+        child.material.transparent = true;
+        child.material.depthWrite = !hoveredWord; // Désactiver depth write lors du hover
+      }
+    });
   }
 
   renderer.setRenderTarget(originalTarget);
@@ -847,6 +943,8 @@ function animate() {
         opacity *= nonHoveredOpacity;
       }
       mesh.material.uniforms.uOpacity.value = opacity;
+      // Mettre à jour le facteur d'aplatissement en fonction du hover
+      mesh.material.uniforms.uFlattenT.value = mesh.userData.hoverT ?? 0;
     }
   });
 
