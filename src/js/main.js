@@ -765,6 +765,10 @@ window.addEventListener('resize', () => {
 const raycaster = new THREE.Raycaster();
 let hoveredWord = null;
 
+// Non-hovered articles opacity
+let nonHoveredOpacity = 1;
+let targetNonHoveredOpacity = 1;
+
 const clock = new THREE.Clock();
 
 function animate() {
@@ -772,6 +776,9 @@ function animate() {
   controls.update();
 
   const t = clock.getElapsedTime();
+
+  // Smooth non-hovered opacity transition
+  nonHoveredOpacity += (targetNonHoveredOpacity - nonHoveredOpacity) * 0.1;
 
   sceneWords.children.forEach((obj) => {
     const { baseY, floatSpeed, floatAmpY, floatOffset } = obj.userData;
@@ -782,8 +789,14 @@ function animate() {
   raycaster.setFromCamera(mouse2D, camera);
   const hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
   if (hit !== hoveredWord) {
-    if (hoveredWord) hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;
-    if (hit)         hit.material.uniforms.uMap.value = hit.userData.textureHover;
+    if (hoveredWord) {
+      hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;
+      targetNonHoveredOpacity = 1;
+    }
+    if (hit) {
+      hit.material.uniforms.uMap.value = hit.userData.textureHover;
+      targetNonHoveredOpacity = 0.2;
+    }
     hoveredWord = hit;
   }
 
@@ -828,7 +841,13 @@ function animate() {
   wordsClickable = camDist > 5.5;
   sceneWords.children.forEach(mesh => {
     mesh.visible = wordOpacity > 0;
-    if (mesh.material?.uniforms) mesh.material.uniforms.uOpacity.value = wordOpacity;
+    if (mesh.material?.uniforms) {
+      let opacity = wordOpacity;
+      if (hoveredWord && mesh !== hoveredWord) {
+        opacity *= nonHoveredOpacity;
+      }
+      mesh.material.uniforms.uOpacity.value = opacity;
+    }
   });
 
   const dofNear = 3;
