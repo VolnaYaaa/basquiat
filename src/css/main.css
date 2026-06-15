@@ -77,6 +77,8 @@ header {
   z-index: 200;
   display: flex;
   align-items: center;
+  -webkit-text-stroke: 3px black;
+  paint-order: stroke fill;
 }
 
 header img {
