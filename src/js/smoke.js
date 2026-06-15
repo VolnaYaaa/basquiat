@@ -32,45 +32,25 @@ const smokeMaterial = new THREE.MeshLambertMaterial({
   side: THREE.DoubleSide,
 });
 
-const smokeParticles = [];
-
-for (let i = 0; i < 150; i++) {
+const smokeParticles = Array.from({ length: 150 }, () => {
   const mesh = new THREE.Mesh(smokeGeo, smokeMaterial.clone());
   mesh.scale.set(2, 2, 2);
-  mesh.position.set(
-    (Math.random() - 0.5) * 2000,
-    (Math.random() - 0.5) * 700,
-    Math.random() * 600 - 200
-  );
+  mesh.position.set((Math.random() - 0.5) * 2000, (Math.random() - 0.5) * 700, Math.random() * 600 - 200);
   mesh.rotation.z = Math.random() * Math.PI * 2;
   smokeScene.add(mesh);
-  smokeParticles.push(mesh);
-}
+  return mesh;
+});
 
-let rafId = null;
-let lastTime = 0;
-
-function animateSmoke(now) {
+let rafId = null, lastTime = 0;
+const animateSmoke = (now) => {
   rafId = requestAnimationFrame(animateSmoke);
   const delta = Math.min((now - lastTime) / 1000, 0.1);
   lastTime = now;
-  smokeParticles.forEach(p => { p.rotation.z += delta * 0.12; });
+  smokeParticles.forEach(p => p.rotation.z += delta * 0.12);
   smokeRenderer.render(smokeScene, smokeCamera);
-}
-
-function startSmoke() {
-  if (rafId === null) {
-    lastTime = performance.now();
-    requestAnimationFrame(animateSmoke);
-  }
-}
-
-function stopSmoke() {
-  if (rafId !== null) {
-    cancelAnimationFrame(rafId);
-    rafId = null;
-  }
-}
+};
+const startSmoke = () => !rafId && (lastTime = performance.now(), requestAnimationFrame(animateSmoke));
+const stopSmoke = () => rafId && (cancelAnimationFrame(rafId), rafId = null);
 
 const observer = new MutationObserver(() => {
   if (popup.classList.contains('active')) {

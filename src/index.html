@@ -9,14 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" type="image/x-icon" href="img/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">  
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
   </head>
   <body>
-   <a href="./index.html"><include src="./components/header.html"></include></a>
-   <div class="instructions">
-    <h1>scroll to zoom</h1>
-    <h1>click and hold to rotate</h1>
-   </div>
+    <a href="./index.html"><include src="./components/header.html"></include></a>
+    <div class="instructions">
+      <h1>scroll to zoom</h1>
+      <h1>click and hold to rotate</h1>
+    </div>
     <main>
       <div id="canvas-layout">
         <canvas id="bg-smoke"></canvas>
@@ -29,17 +29,16 @@
         <p>Superhero Portfolio</p>
         <p>Basquiat as a musician</p>
         <p>Daros Suite</p>
-        <p>Enfance</p>
+        <p>Childhood</p>
         <p>Andy Warhol</p>
         <p>SAMO</p>
       </div>
       <include src="./components/article-popup.html"></include>
     </main>
     <script src="./js/main.js" type="module"></script>
-
-  <div id="floating-overlay">
-    <canvas id="floating-canvas"></canvas>
-    <button id="floating-close" onclick="FloatingPopup.close()">✕</button>
-  </div>
+    <div id="floating-overlay">
+      <canvas id="floating-canvas"></canvas>
+      <button id="floating-close" onclick="FloatingPopup.close()">✕</button>
+    </div>
   </body>
 </html>

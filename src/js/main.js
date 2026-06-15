@@ -852,8 +852,11 @@ function animate() {
     obj.rotation.y = origRot.y * (1 - t_hover) + targetRotY * t_hover;
   });
 
-  raycaster.setFromCamera(mouse2D, camera);
-  const hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
+  let hit = null;
+  if (wordsClickable) {
+    raycaster.setFromCamera(mouse2D, camera);
+    hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
+  }
   if (hit !== hoveredWord) {
     if (hoveredWord) {
       hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;

@@ -1,8 +1,6 @@
 #popup-smoke {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
   z-index: 0;
 }
@@ -27,32 +25,26 @@
 
 .popup-container {
   margin-top: 100px;
-  width: 100%;
-  height: 100%;
   padding: 30px 60px;
   display: grid;
   grid-template-columns: 1fr 1fr 1.5fr;
   grid-template-rows: auto auto minmax(400px, 40vh);
   position: relative;
-  z-index: auto;
 }
 
 .popup-close {
-  padding: 0 1px;
-  gap: 10px;
   background: #fff;
   border: none;
   color: #000;
   font-size: 2rem;
-  height: 40px;
   width: 100px;
-  grid-area: 1 / 3 / 1 / 3;
-  align-self: end;
+  grid-area: 1 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
   justify-self: end;
-  align-self: self-start;
+  align-self: start;
+  cursor: pointer;
 }
 
 .popup-title-wrap{
@@ -117,14 +109,12 @@
   position: relative;
   flex-shrink: 0;
   height: 100%;
-  
 }
 
 .slider-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .slider-slide::after {
@@ -138,24 +128,20 @@
 .slider-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 0;
   justify-content: center;
   gap: 84px;
-  padding: 20px 0px;
+  padding: 20px 0;
 }
 
 .slider-prev,
 .slider-next {
-  cursor: pointer;
-  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
   background: none;
   border: none;
-  gap: 10px;
+  cursor: pointer;
 }
 
 .slider-prev:disabled,
@@ -170,36 +156,29 @@
   flex: 1;
   justify-content: center;
   align-items: center;
-  max-width: max-content;
-  
 }
 
 .progress-bar {
   width: 24px;
   height: 36px;
+  background-color: #000;
   -webkit-mask-image: url(../../public/imgs/icons/icon=score.svg);
   mask-image: url(../../public/imgs/icons/icon=score.svg);
-  background-color: #000;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-size: contain;
   mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  cursor: pointer;
 }
 
 .progress-bar.active {
   width: 38px;
   height: 42px;
+  background-color: #FFB60B;
   -webkit-mask-image: url(../../public/imgs/icons/icon=selected.svg);
   mask-image: url(../../public/imgs/icons/icon=selected.svg);
-  background-color: #FFB60B;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
 }
 
 .gallery img {
