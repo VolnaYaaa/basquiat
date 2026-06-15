@@ -37,31 +37,22 @@ main{
 }
 
 @font-face {
-  font-family: 'BASQUIAT-TITEL';
-  src: url('../../public/fonts/Basquiat-TITEL.otf') format('opentype');
+  font-family: 'BASQUIAT';
+  src: url('../../public/fonts/Basquiat-Regular.woff') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 h1, h2, h3, h4, h5, h6, p {
-  font-family: 'BASQUIAT-TITEL', sans-serif;
+  font-family: 'BASQUIAT', sans-serif;
 }
-
-@font-face {
-  font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/Basquiat-WORD.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 .ibm-plex-mono-regular{
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
   font-style: regular;
 }
-.article > p {
-  font-family: 'BASQUIAT-WORD', sans-serif;
+.article {
+  font-family: 'BASQUIAT', sans-serif;
 }
 
 span, a {
@@ -72,7 +63,7 @@ span, a {
 
 .article span,
 .article a {
-  font-family: 'BASQUIAT-TITEL', sans-serif;
+  font-family: 'BASQUIAT', sans-serif;
 }
 
 header {
@@ -96,4 +87,29 @@ header img {
 
 h3 {
   font-size: 25px;
+}
+
+.instructions {
+  font-size: 100px;
+  position: fixed;
+  top: 30px;
+  right: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 30px;
+  z-index: 1000;
+}
+
+.instructions h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+  color: #ffffff;
+  text-align: center;
+  font-weight: normal;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-transform: lowercase;
+  line-height: 1;
 }
