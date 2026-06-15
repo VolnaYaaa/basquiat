@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import busteUrl    from 'url:../../public/models/export2.glb';
-import cursorUrl   from 'url:../img/cursor.svg';
+import cursorUrl   from 'url:../img/cursor.png';
 import oeuvre1Url  from 'url:../img/oeuvre1.png';
 import oeuvre2Url  from 'url:../img/oeuvre2.png';
 import oeuvre3Url  from 'url:../img/oeuvre3.png';
@@ -45,6 +45,8 @@ scene.add(backLight);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.zoomSpeed = 5;
+controls.dampingFactor = 0.05;
 
 // ─── RENDER TARGETS ───────────────────────────────────────────────────────────
 
@@ -543,7 +545,7 @@ const GRAFFITI_COLORS = [
   '#1CA7A6',
 ];
 
-const GRAFFITI_FONTS = ['BASQUIAT'];
+const GRAFFITI_FONT = getComputedStyle(document.documentElement).getPropertyValue('--graffiti-font').trim().replace(/['"]/g, '');
 
 function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false, strikethrough = false }) {
   const cvs = document.createElement('canvas');
@@ -632,7 +634,7 @@ function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
 
 function createWordSprite(text, radius) {
   const color    = GRAFFITI_COLORS[Math.floor(Math.random() * GRAFFITI_COLORS.length)];
-  const font     = GRAFFITI_FONTS[Math.floor(Math.random() * GRAFFITI_FONTS.length)];
+  const font     = GRAFFITI_FONT;
   const fontSize = 100 + Math.floor(Math.random() * 28);
   const skew     = (Math.random() - 0.5) * 0.4;
 
@@ -732,12 +734,14 @@ function buildWordCloud() {
   });
 }
 
-document.fonts.load('100px BASQUIAT').then(() => buildWordCloud()).catch(() => buildWordCloud());
+document.fonts.load(`100px ${GRAFFITI_FONT}`).then(() => buildWordCloud()).catch(() => buildWordCloud());
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 
+let wordsClickable = true;
+
 window.addEventListener('click', () => {
-  if (hoveredWord) {
+  if (hoveredWord && wordsClickable) {
     window.dispatchEvent(new CustomEvent('word-click', { detail: { word: hoveredWord.userData.word } }));
   }
 });
@@ -761,6 +765,10 @@ window.addEventListener('resize', () => {
 const raycaster = new THREE.Raycaster();
 let hoveredWord = null;
 
+// Non-hovered articles opacity
+let nonHoveredOpacity = 1;
+let targetNonHoveredOpacity = 1;
+
 const clock = new THREE.Clock();
 
 function animate() {
@@ -768,6 +776,9 @@ function animate() {
   controls.update();
 
   const t = clock.getElapsedTime();
+
+  // Smooth non-hovered opacity transition
+  nonHoveredOpacity += (targetNonHoveredOpacity - nonHoveredOpacity) * 0.1;
 
   sceneWords.children.forEach((obj) => {
     const { baseY, floatSpeed, floatAmpY, floatOffset } = obj.userData;
@@ -778,8 +789,14 @@ function animate() {
   raycaster.setFromCamera(mouse2D, camera);
   const hit = raycaster.intersectObjects(sceneWords.children)[0]?.object ?? null;
   if (hit !== hoveredWord) {
-    if (hoveredWord) hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;
-    if (hit)         hit.material.uniforms.uMap.value = hit.userData.textureHover;
+    if (hoveredWord) {
+      hoveredWord.material.uniforms.uMap.value = hoveredWord.userData.textureBW;
+      targetNonHoveredOpacity = 1;
+    }
+    if (hit) {
+      hit.material.uniforms.uMap.value = hit.userData.textureHover;
+      targetNonHoveredOpacity = 0.2;
+    }
     hoveredWord = hit;
   }
 
@@ -821,9 +838,16 @@ function animate() {
   const wordFadeStart = 6.0;
   const wordFadeEnd   = 5.0;
   const wordOpacity   = Math.max(0, Math.min(1, (camDist - wordFadeEnd) / (wordFadeStart - wordFadeEnd)));
+  wordsClickable = camDist > 5.5;
   sceneWords.children.forEach(mesh => {
     mesh.visible = wordOpacity > 0;
-    if (mesh.material?.uniforms) mesh.material.uniforms.uOpacity.value = wordOpacity;
+    if (mesh.material?.uniforms) {
+      let opacity = wordOpacity;
+      if (hoveredWord && mesh !== hoveredWord) {
+        opacity *= nonHoveredOpacity;
+      }
+      mesh.material.uniforms.uOpacity.value = opacity;
+    }
   });
 
   const dofNear = 3;
