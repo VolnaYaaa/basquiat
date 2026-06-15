@@ -5,8 +5,25 @@
 }
 
 :root {
-  --graffiti-font: 'BASQUIAT';
+  --graffiti-font: 'BASQUIAT-WORD';
 }
+
+@font-face {
+  font-family: 'BASQUIAT-TITLE';
+  src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BASQUIAT-WORD';
+  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -36,23 +53,8 @@ main{
   
 }
 
-@font-face {
-  font-family: 'BASQUIAT-TITLE';
-  src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-h1, h2, h3, h4, p {
+h2, h3, h4, p {
   font-family: 'BASQUIAT-WORD', sans-serif;
-}
-
-@font-face {
-  font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
 }
 
 .ibm-plex-mono-regular{
@@ -68,6 +70,7 @@ span, a {
 }
 
 header {
+  font-size: 25px;
   color: white;
   position: fixed;
   z-index: 10;
@@ -95,8 +98,8 @@ h3 {
 .instructions {
   font-size: 100px;
   position: fixed;
-  top: 60px;
-  right: 60px;
+  bottom: 30px;
+  right: 30px;
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -106,8 +109,7 @@ h3 {
 }
 
 .instructions h1 {
-  margin: 0;
-  padding: 0;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 24px;
   color: #ffffff;
   text-align: center;
