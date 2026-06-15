@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
+  src: url('../../public/fonts/BASQUIAT-WORD.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -32,11 +32,10 @@ html, body {
   overflow: hidden;
   overflow-x: hidden;
   -webkit-text-size-adjust: none;
-
 }
 
 a {
-  color: inheriе;
+  color: inherit;
 }
 
 html { font-size: 12px; }
@@ -46,39 +45,24 @@ video {
   display: block;
 }
 
-main{
+main {
   width: 100%;
   height: 100vh;
   position: relative;
-  
 }
 
-@font-face {
-  font-family: 'BASQUIAT-TITLE';
-  src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 h1, h2, h3, h4 {
   font-family: 'BASQUIAT-TITLE', sans-serif;
   font-weight: normal;
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/BASQUIAT-WORD.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-.ibm-plex-mono-regular{
+.ibm-plex-mono-regular {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
-  font-style: regular;
+  font-style: normal;
 }
+
 .article > p {
   font-family: 'BASQUIAT-WORD', sans-serif;
   font-weight: normal;
@@ -95,13 +79,10 @@ header {
   font-size: 25px;
   color: white;
   position: fixed;
-  z-index: 10;
+  z-index: 200;
   display: flex;
   gap: 10px;
   padding: 30px 30px;
-  position: fixed;
-  z-index: 200;
-  display: flex;
   align-items: center;
   -webkit-text-stroke: 3px black;
   paint-order: stroke fill;
@@ -118,7 +99,6 @@ h3 {
 }
 
 .instructions {
-  font-size: 100px;
   position: fixed;
   bottom: 30px;
   right: 30px;
