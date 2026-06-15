@@ -45,6 +45,8 @@ scene.add(backLight);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.zoomSpeed = 5;
+controls.dampingFactor = 0.05;
 
 // ─── RENDER TARGETS ───────────────────────────────────────────────────────────
 
@@ -736,8 +738,10 @@ document.fonts.load(`100px ${GRAFFITI_FONT}`).then(() => buildWordCloud()).catch
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 
+let wordsClickable = true;
+
 window.addEventListener('click', () => {
-  if (hoveredWord) {
+  if (hoveredWord && wordsClickable) {
     window.dispatchEvent(new CustomEvent('word-click', { detail: { word: hoveredWord.userData.word } }));
   }
 });
@@ -821,6 +825,7 @@ function animate() {
   const wordFadeStart = 6.0;
   const wordFadeEnd   = 5.0;
   const wordOpacity   = Math.max(0, Math.min(1, (camDist - wordFadeEnd) / (wordFadeStart - wordFadeEnd)));
+  wordsClickable = camDist > 5.5;
   sceneWords.children.forEach(mesh => {
     mesh.visible = wordOpacity > 0;
     if (mesh.material?.uniforms) mesh.material.uniforms.uOpacity.value = wordOpacity;
