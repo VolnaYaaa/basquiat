@@ -5,7 +5,7 @@
 }
 
 :root {
-  --graffiti-font: 'BASQUIAT';
+  --graffiti-font: 'BASQUIAT-WORD';
 }
 html, body {
   margin: 0;
@@ -45,11 +45,13 @@ main{
 }
 h1, h2, h3, h4 {
   font-family: 'BASQUIAT-TITLE', sans-serif;
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {
   font-family: 'BASQUIAT-WORD';
-  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
+  src: url('../../public/fonts/BASQUIAT-WORD.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -60,8 +62,10 @@ h1, h2, h3, h4 {
   font-weight: 400;
   font-style: regular;
 }
-.article {
-  font-family: 'BASQUIAT', sans-serif;
+.article > p {
+  font-family: 'BASQUIAT-WORD', sans-serif;
+  font-weight: normal;
+  font-style: normal;
 }
 
 span, a {
