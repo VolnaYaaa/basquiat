@@ -834,7 +834,7 @@ function animate() {
 
     const isDetached = obj === detachedWord;
     const targetHoverT = isDetached ? 1.0 : 0.0;
-    obj.userData.hoverT = (obj.userData.hoverT ?? 0) + (targetHoverT - (obj.userData.hoverT ?? 0)) * 0.35;
+    obj.userData.hoverT = (obj.userData.hoverT ?? 0) + (targetHoverT - (obj.userData.hoverT ?? 0)) * 0.05;
     const t_hover = obj.userData.hoverT;
 
     // Position: stay at original position while flattening
