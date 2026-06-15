@@ -278,7 +278,7 @@ const articleImages = {
   'Superhero Portfolio': [superhero1, superhero2, superhero3, superhero4],
   'Basquiat as musician': [music1, music2, music3, music4, music5],
   'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
-  'Enfants': [enfance1, enfance2, enfance3, enfance4],
+  'Enfance': [enfance1, enfance2, enfance3, enfance4],
   'Andy Warhol': [
     warhol1, warhol2, warhol3, warhol4, warhol5, warhol6, warhol7, warhol8, warhol9, warhol10,
     warhol11, warhol12, warhol13, warhol14, warhol15, warhol16, warhol17, warhol18, warhol19,
