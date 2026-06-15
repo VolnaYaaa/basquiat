@@ -23,7 +23,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1.5fr;
   grid-template-rows: auto auto minmax(400px, 40vh);
-  margin-top: 130px;
 }
 
 .popup-close {
@@ -35,11 +34,13 @@
   font-size: 2rem;
   height: 40px;
   width: 100px;
-  grid-area: 1 / 1 / 2 / 2;
+  grid-area: 1 / 3 / 1 / 3;
   align-self: end;
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: end;
+  align-self: self-start;
 }
 
 .popup-title-wrap{
@@ -57,7 +58,6 @@
 
 .popup-description {
   grid-area: 2 / 3 / 3 / 4; 
-  padding-bottom: 100px;
 }
 
 .popup-body {
@@ -93,6 +93,7 @@
 .slider-track {
   display: flex;
   height: 100%;
+  gap: 20px;
   transition: transform 0.35s ease;
 }
 
@@ -100,13 +101,22 @@
   position: relative;
   flex-shrink: 0;
   height: 100%;
+  
 }
 
 .slider-slide img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
+}
+
+.slider-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0.12%, #FFF 80%);
+  pointer-events: none;
 }
 
 .slider-nav {
@@ -200,27 +210,4 @@
   width: 100%;
   height: 100%;
 }
-
-#floating-close {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid rgba(0, 0, 0, 0.6);
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer;
-  color: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease, background 0.3s ease;
-  z-index: 10;
-}
-
-#floating-close:hover {
-  transform: rotate(90deg);
-  background: rgba(0, 0, 0, 0.08);
-}
+  

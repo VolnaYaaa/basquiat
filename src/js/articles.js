@@ -264,17 +264,18 @@ const closeBtn = document.getElementById('popup-close');
 let current = 0;
 let total = 0;
 let slideWidth = 0;
+const SLIDE_GAP = 100;
 
 function calcSlideWidth() {
   const viewport = popup.querySelector('.slider-viewport');
   const peek = total > 1 ? parseInt(
     getComputedStyle(document.documentElement).getPropertyValue('--slider-peek')
-  ) || 220 : 0;
+  ) || 600 : 0;
   return viewport.offsetWidth - peek;
 }
 
 function updateSlider() {
-  track.style.transform = `translateX(-${current * slideWidth}px)`;
+  track.style.transform = `translateX(-${current * (slideWidth)}px)`;
 
   progressEl.querySelectorAll('.progress-bar').forEach((bar, i) => {
     bar.classList.toggle('active', i === current);
