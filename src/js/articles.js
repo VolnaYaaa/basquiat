@@ -181,110 +181,96 @@ const FloatingPopup = (() => {
 
   // swiper.update();
 
-import anatomy1 from 'url:../../public/imgs/articles/anatomy/anatomy-1.png';
-import anatomy2 from 'url:../../public/imgs/articles/anatomy/anatomy-2.png';
-import anatomy3 from 'url:../../public/imgs/articles/anatomy/anatomy-3.png';
-import anatomy4 from 'url:../../public/imgs/articles/anatomy/anatomy-4.png';
-import anatomy5 from 'url:../../public/imgs/articles/anatomy/anatomy-5.png';
-import anatomy6 from 'url:../../public/imgs/articles/anatomy/anatomy-6.png';
-import anatomy7 from 'url:../../public/imgs/articles/anatomy/anatomy-7.png';
-import anatomy8 from 'url:../../public/imgs/articles/anatomy/anatomy-8.png';
-import anatomy9 from 'url:../../public/imgs/articles/anatomy/anatomy-9.png';
-import anatomy10 from 'url:../../public/imgs/articles/anatomy/anatomy-10.png';
-
-import jawbone1 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_of_an_ass-1.png';
-import jawbone2 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_of_an_ass.png';
-import jawbone3 from 'url:../../public/imgs/articles/jawbone_of_an_ass/image_15.png';
-
-import hollywood1 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_1.png';
-import hollywood2 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_2.png';
-import hollywood3 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_3.png';
-import hollywood4 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_4.png';
-import hollywood5 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_5.png';
-import hollywood6 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_6.png';
-import hollywood7 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_7.png';
-import hollywood8 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_8.jpg';
-import hollywood9 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_9.png';
-
-
-import figure1 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_i.png';
-import figure2 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_ii.png';
-import figure3 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_iii.png';
-import figure4 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_iv.png';
-import figure5 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_v.png';
-
-import superhero1 from 'url:../../public/imgs/articles/superhero_portfolio/a_panel_of_experts_(superhero_portfolio).png';
-import superhero2 from 'url:../../public/imgs/articles/superhero_portfolio/flash_in_naples.png';
-import superhero3 from 'url:../../public/imgs/articles/superhero_portfolio/piano_lesson.png';
-import superhero4 from 'url:../../public/imgs/articles/superhero_portfolio/riddle_me_this.png';
-
-import daros1 from 'url:../../public/imgs/articles/daros suit/50_cent_piece,_1982.png';
-import daros2 from 'url:../../public/imgs/articles/daros suit/Ascent.png';
-import daros3 from 'url:../../public/imgs/articles/daros suit/jawbone_of_an_ass.png';
-import daros4 from 'url:../../public/imgs/articles/daros suit/king_brand,_1983.png';
-import daros5 from 'url:../../public/imgs/articles/daros suit/liberty,_1983.png';
-import daros6 from 'url:../../public/imgs/articles/daros suit/Olympic.png';
-
-import music1 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-1.png';
-import music2 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-2.png';
-import music3 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-3.png';
-import music4 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-4.png';
-import music5 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-5.png';
-
-import enfance1 from 'url:../../public/imgs/articles/enfance/enfance_01.png';
-import enfance2 from 'url:../../public/imgs/articles/enfance/enfance_02.png';
-import enfance3 from 'url:../../public/imgs/articles/enfance/enfance_03.png';
-import enfance4 from 'url:../../public/imgs/articles/enfance/enfance_04.png';
-
-import warhol1  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_1.webp';
-import warhol2  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_2.webp';
-import warhol3  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_3.jpg';
-import warhol4  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_4.webp';
-import warhol5  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_5.avif';
-import warhol6  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_6.jpg';
-import warhol7  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_7.jpg';
-import warhol8  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_8.jpg';
-import warhol9  from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_9.avif';
-import warhol10 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_10.jpg';
-import warhol11 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_11.jpg';
-import warhol12 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_12.avif';
-import warhol13 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_14.jpg';
-import warhol14 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_15.avif';
-import warhol15 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_16.avif';
-import warhol16 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_17.avif';
-import warhol17 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_18.avif';
-import warhol18 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_19.png';
-import warhol19 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_20.png';
-import warhol20 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_21.png';
-import warhol21 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_22.png';
-import warhol22 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_25.png';
-import warhol23 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_26.jpeg';
-import warhol24 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_1.png';
-import warhol25 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_2.png';
-import warhol26 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_3.jpeg';
-import warhol27 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_4.jpeg';
-
-import samo1 from 'url:../../public/imgs/articles/samo/samo_1.png';
-import samo2 from 'url:../../public/imgs/articles/samo/samo_2.png';
-import samo3 from 'url:../../public/imgs/articles/samo/samo_3.png';
-import samo4 from 'url:../../public/imgs/articles/samo/samo_4.webp';
-import samo5 from 'url:../../public/imgs/articles/samo/samo_5.png';
+import a1 from 'url:../../public/imgs/articles/anatomy/anatomy-1.png';
+import a2 from 'url:../../public/imgs/articles/anatomy/anatomy-2.png';
+import a3 from 'url:../../public/imgs/articles/anatomy/anatomy-3.png';
+import a4 from 'url:../../public/imgs/articles/anatomy/anatomy-4.png';
+import a5 from 'url:../../public/imgs/articles/anatomy/anatomy-5.png';
+import a6 from 'url:../../public/imgs/articles/anatomy/anatomy-6.png';
+import a7 from 'url:../../public/imgs/articles/anatomy/anatomy-7.png';
+import a8 from 'url:../../public/imgs/articles/anatomy/anatomy-8.png';
+import a9 from 'url:../../public/imgs/articles/anatomy/anatomy-9.png';
+import a10 from 'url:../../public/imgs/articles/anatomy/anatomy-10.png';
+import j1 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_of_an_ass-1.png';
+import j2 from 'url:../../public/imgs/articles/jawbone_of_an_ass/jawbone_of_an_ass.png';
+import j3 from 'url:../../public/imgs/articles/jawbone_of_an_ass/image_15.png';
+import h1 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_1.png';
+import h2 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_2.png';
+import h3 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_3.png';
+import h4 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_4.png';
+import h5 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_5.png';
+import h6 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_6.png';
+import h7 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_7.png';
+import h8 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_8.jpg';
+import h9 from 'url:../../public/imgs/articles/hollywood_africans/hollywood_9.png';
+import f1 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_i.png';
+import f2 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_ii.png';
+import f3 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_iii.png';
+import f4 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_iv.png';
+import f5 from 'url:../../public/imgs/articles/the_figure_portfolio/the_figure_v.png';
+import s1 from 'url:../../public/imgs/articles/superhero_portfolio/a_panel_of_experts_(superhero_portfolio).png';
+import s2 from 'url:../../public/imgs/articles/superhero_portfolio/flash_in_naples.png';
+import s3 from 'url:../../public/imgs/articles/superhero_portfolio/piano_lesson.png';
+import s4 from 'url:../../public/imgs/articles/superhero_portfolio/riddle_me_this.png';
+import d1 from 'url:../../public/imgs/articles/daros suit/50_cent_piece,_1982.png';
+import d2 from 'url:../../public/imgs/articles/daros suit/Ascent.png';
+import d3 from 'url:../../public/imgs/articles/daros suit/jawbone_of_an_ass.png';
+import d4 from 'url:../../public/imgs/articles/daros suit/king_brand,_1983.png';
+import d5 from 'url:../../public/imgs/articles/daros suit/liberty,_1983.png';
+import d6 from 'url:../../public/imgs/articles/daros suit/Olympic.png';
+import m1 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-1.png';
+import m2 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-2.png';
+import m3 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-3.png';
+import m4 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-4.png';
+import m5 from 'url:../../public/imgs/articles/music/jawbone_of_an_ass-5.png';
+import e1 from 'url:../../public/imgs/articles/enfance/enfance_01.png';
+import e2 from 'url:../../public/imgs/articles/enfance/enfance_02.png';
+import e3 from 'url:../../public/imgs/articles/enfance/enfance_03.png';
+import e4 from 'url:../../public/imgs/articles/enfance/enfance_04.png';
+import w1 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_1.webp';
+import w2 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_2.webp';
+import w3 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_3.jpg';
+import w4 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_4.webp';
+import w5 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_5.avif';
+import w6 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_6.jpg';
+import w7 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_7.jpg';
+import w8 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_8.jpg';
+import w9 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_9.avif';
+import w10 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_10.jpg';
+import w11 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_11.jpg';
+import w12 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_12.avif';
+import w13 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_14.jpg';
+import w14 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_15.avif';
+import w15 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_16.avif';
+import w16 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_17.avif';
+import w17 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_18.avif';
+import w18 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_19.png';
+import w19 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_20.png';
+import w20 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_21.png';
+import w21 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_22.png';
+import w22 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_25.png';
+import w23 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_26.jpeg';
+import w24 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_1.png';
+import w25 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_2.png';
+import w26 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_3.jpeg';
+import w27 from 'url:../../public/imgs/articles/andy warhol/basquiat_warhol_box_4.jpeg';
+import sa1 from 'url:../../public/imgs/articles/samo/samo_1.png';
+import sa2 from 'url:../../public/imgs/articles/samo/samo_2.png';
+import sa3 from 'url:../../public/imgs/articles/samo/samo_3.png';
+import sa4 from 'url:../../public/imgs/articles/samo/samo_4.webp';
+import sa5 from 'url:../../public/imgs/articles/samo/samo_5.png';
 
 const articleImages = {
-  'Anatomy': [anatomy1, anatomy2, anatomy3, anatomy4, anatomy5, anatomy6, anatomy7, anatomy8, anatomy9, anatomy10],
-  'Jawbone Of An Ass': [jawbone1, jawbone2, jawbone3],
-  'Hollywood Africans': [hollywood1, hollywood2, hollywood3, hollywood4, hollywood5, hollywood6, hollywood7, hollywood8, hollywood9],
-  'The Figure Portfolio': [figure1, figure2, figure3, figure4, figure5],
-  'Superhero Portfolio': [superhero1, superhero2, superhero3, superhero4],
-  'Basquiat as a musician': [music1, music2, music3, music4, music5],
-  'Daros Suite': [daros1, daros2, daros3, daros4, daros5, daros6],
-  'Childhood': [enfance1, enfance2, enfance3, enfance4],
-  'Andy Warhol': [
-    warhol1, warhol2, warhol3, warhol4, warhol5, warhol6, warhol7, warhol8, warhol9, warhol10,
-    warhol11, warhol12, warhol13, warhol14, warhol15, warhol16, warhol17, warhol18, warhol19,
-    warhol20, warhol21, warhol22, warhol23, warhol24, warhol25, warhol26, warhol27
-  ],
-  'SAMO': [samo1, samo2, samo3, samo4, samo5],
+  'Anatomy': [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10],
+  'Jawbone Of An Ass': [j1, j2, j3],
+  'Hollywood Africans': [h1, h2, h3, h4, h5, h6, h7, h8, h9],
+  'The Figure Portfolio': [f1, f2, f3, f4, f5],
+  'Superhero Portfolio': [s1, s2, s3, s4],
+  'Basquiat as a musician': [m1, m2, m3, m4, m5],
+  'Daros Suite': [d1, d2, d3, d4, d5, d6],
+  'Childhood': [e1, e2, e3, e4],
+  'Andy Warhol': [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17, w18, w19, w20, w21, w22, w23, w24, w25, w26, w27],
+  'SAMO': [sa1, sa2, sa3, sa4, sa5],
 };
 
 const articles = {
@@ -338,20 +324,9 @@ function updateSlider() {
 
 function buildSlider(images) {
   track.innerHTML = images.map((src, i) =>
-    `<div class="slider-slide">
-      <img src="${src}" alt="slide ${i + 1}">
-    </div>`
+    `<div class="slider-slide"><img src="${src}" alt="slide ${i + 1}"></div>`
   ).join('');
-
-  track.querySelectorAll('.slide-info-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      infoPanel.classList.toggle('visible');
-    });
-  });
-
   track.querySelectorAll('.slider-slide img').forEach((img, i) => {
-    img.style.cursor = 'zoom-in';
     img.addEventListener('click', (e) => {
       e.stopPropagation();
       FloatingPopup.open(images[i]);
@@ -363,9 +338,7 @@ function buildProgress() {
   progressEl.innerHTML = Array.from({ length: total }, (_, i) =>
     `<div class="progress-bar${i === 0 ? ' active' : ''}"></div>`
   ).join('');
-
   progressEl.querySelectorAll('.progress-bar').forEach((bar, i) => {
-    bar.style.cursor = 'pointer';
     bar.addEventListener('click', () => {
       current = i;
       updateSlider();
@@ -382,11 +355,9 @@ function openPopup(word) {
   const images = articleImages[word] || [];
   total = images.length;
   current = 0;
-
   document.querySelector('.popup-title').textContent = word;
   document.querySelector('.popup-body').textContent = articles[word] || '';
   infoPanel.classList.remove('visible');
-
   if (total > 0) {
     buildSlider(images);
     buildProgress();
@@ -398,34 +369,20 @@ function openPopup(word) {
       updateSlider();
     });
   } else {
-    track.innerHTML = '';
-    progressEl.innerHTML = '';
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
+    track.innerHTML = progressEl.innerHTML = '';
+    prevBtn.disabled = nextBtn.disabled = true;
   }
-
   popup.classList.add('active');
 }
 
-prevBtn.addEventListener('click', () => {
-  if (current > 0) { current--; updateSlider(); }
-});
-
-nextBtn.addEventListener('click', () => {
-  if (current < total - 1) { current++; updateSlider(); }
-});
-
-closeBtn.addEventListener('click', () => {
+const closePopup = () => {
   popup.classList.remove('active');
   infoPanel.classList.remove('visible');
-});
-
-popup.addEventListener('click', (e) => {
-  if (e.target === popup) {
-    popup.classList.remove('active');
-    infoPanel.classList.remove('visible');
-  }
-});
+};
+prevBtn.addEventListener('click', () => current > 0 && (current--, updateSlider()));
+nextBtn.addEventListener('click', () => current < total - 1 && (current++, updateSlider()));
+closeBtn.addEventListener('click', closePopup);
+popup.addEventListener('click', (e) => e.target === popup && closePopup());
 
 window.addEventListener('resize', () => {
   if (!popup.classList.contains('active') || total === 0) return;
