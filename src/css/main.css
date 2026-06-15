@@ -37,18 +37,12 @@ main{
 }
 
 @font-face {
-<<<<<<< HEAD
   font-family: 'BASQUIAT-TITLE';
   src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
-=======
-  font-family: 'BASQUIAT';
-  src: url('../../public/fonts/Basquiat-Regular.woff') format('opentype');
->>>>>>> 9cc48c4a3845c14569a0831179ef8cd0bd64b318
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
-<<<<<<< HEAD
 h1, h2, h3, h4 {
   font-family: 'BASQUIAT-TITLE', sans-serif;
 }
@@ -61,11 +55,6 @@ h1, h2, h3, h4 {
   font-display: swap;
 }
 
-=======
-h1, h2, h3, h4, h5, h6, p {
-  font-family: 'BASQUIAT', sans-serif;
-}
->>>>>>> 9cc48c4a3845c14569a0831179ef8cd0bd64b318
 .ibm-plex-mono-regular{
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
