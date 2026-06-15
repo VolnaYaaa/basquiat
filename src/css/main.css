@@ -75,7 +75,9 @@ header {
   padding: 30px 60px;
   position: fixed;
   z-index: 200;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 header img {
