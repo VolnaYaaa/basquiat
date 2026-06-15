@@ -37,22 +37,31 @@ main{
 }
 
 @font-face {
-  font-family: 'BASQUIAT';
-  src: url('../../public/fonts/Basquiat-Regular.woff') format('opentype');
+  font-family: 'BASQUIAT-TITEL';
+  src: url('../../public/fonts/Basquiat-TITEL.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 h1, h2, h3, h4, h5, h6, p {
-  font-family: 'BASQUIAT', sans-serif;
+  font-family: 'BASQUIAT-TITEL', sans-serif;
 }
+
+@font-face {
+  font-family: 'BASQUIAT-WORD';
+  src: url('../../public/fonts/Basquiat-WORD.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 .ibm-plex-mono-regular{
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
   font-style: regular;
 }
-.article {
-  font-family: 'BASQUIAT', sans-serif;
+.article > p {
+  font-family: 'BASQUIAT-WORD', sans-serif;
 }
 
 span, a {
@@ -63,7 +72,7 @@ span, a {
 
 .article span,
 .article a {
-  font-family: 'BASQUIAT', sans-serif;
+  font-family: 'BASQUIAT-TITEL', sans-serif;
 }
 
 header {
