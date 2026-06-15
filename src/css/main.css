@@ -7,6 +7,23 @@
 :root {
   --graffiti-font: 'BASQUIAT-WORD';
 }
+
+@font-face {
+  font-family: 'BASQUIAT-TITLE';
+  src: url('../../public/fonts/BASQUIAT-TITLE.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BASQUIAT-WORD';
+  src: url('../../public/fonts/BASQUIAT-WORD.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -74,12 +91,8 @@ span, a {
   font-style: normal;
 }
 
-.article span,
-.article a {
-  font-family: 'BASQUIAT-TITLE', sans-serif;
-}
-
 header {
+  font-size: 25px;
   color: white;
   position: fixed;
   z-index: 10;
@@ -107,8 +120,8 @@ h3 {
 .instructions {
   font-size: 100px;
   position: fixed;
-  top: 60px;
-  right: 60px;
+  bottom: 30px;
+  right: 30px;
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -118,8 +131,7 @@ h3 {
 }
 
 .instructions h1 {
-  margin: 0;
-  padding: 0;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 24px;
   color: #ffffff;
   text-align: center;
