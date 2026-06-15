@@ -543,7 +543,7 @@ const GRAFFITI_COLORS = [
   '#1CA7A6',
 ];
 
-const GRAFFITI_FONTS = ['BASQUIAT'];
+const GRAFFITI_FONT = getComputedStyle(document.documentElement).getPropertyValue('--graffiti-font').trim().replace(/['"]/g, '');
 
 function makeWordTexture(text, { color, fontSize, font, skew, grayscale = false, strikethrough = false }) {
   const cvs = document.createElement('canvas');
@@ -632,7 +632,7 @@ function createCurvedPlaneGeometry(worldW, worldH, radius, segmentsW = 24) {
 
 function createWordSprite(text, radius) {
   const color    = GRAFFITI_COLORS[Math.floor(Math.random() * GRAFFITI_COLORS.length)];
-  const font     = GRAFFITI_FONTS[Math.floor(Math.random() * GRAFFITI_FONTS.length)];
+  const font     = GRAFFITI_FONT;
   const fontSize = 100 + Math.floor(Math.random() * 28);
   const skew     = (Math.random() - 0.5) * 0.4;
 
@@ -732,7 +732,7 @@ function buildWordCloud() {
   });
 }
 
-document.fonts.load('100px BASQUIAT').then(() => buildWordCloud()).catch(() => buildWordCloud());
+document.fonts.load(`100px ${GRAFFITI_FONT}`).then(() => buildWordCloud()).catch(() => buildWordCloud());
 
 // ─── RESIZE ───────────────────────────────────────────────────────────────────
 

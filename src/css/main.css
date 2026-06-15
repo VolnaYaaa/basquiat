@@ -3,6 +3,10 @@
   margin: 0;
   padding: 0;
 }
+
+:root {
+  --graffiti-font: 'BASQUIAT';
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -33,24 +37,33 @@ main{
 }
 
 @font-face {
-  font-family: 'Basquit-title';
-  src: url('../../public/fonts/BASQUIAT.otf') format('woff');
+  font-family: 'BASQUIAT';
+  src: url('../../public/fonts/BASQUIAT.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 h1, h2, h3, h4, h5, h6, p {
-  font-family: 'Basquit-title', sans-serif;
+  font-family: 'BASQUIAT', sans-serif;
 }
 .ibm-plex-mono-regular{
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
   font-style: regular;
 }
+.article {
+  font-family: 'BASQUIAT', sans-serif;
+}
+
 span, a {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
   font-style: normal;
+}
+
+.article span,
+.article a {
+  font-family: 'BASQUIAT', sans-serif;
 }
 
 header {
